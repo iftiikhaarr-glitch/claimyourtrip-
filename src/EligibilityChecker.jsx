@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import {
   Plane, ArrowRight, ArrowLeft, Euro, CheckCircle2, XCircle,
-  AlertTriangle, Hotel, UtensilsCrossed, Phone, ShieldCheck, RefreshCw
+  AlertTriangle, Hotel, UtensilsCrossed, Phone, ShieldCheck, RefreshCw,
+  Scale, Lock, Ban
 } from "lucide-react";
 
 const AIRPORTS = [
@@ -161,17 +162,53 @@ export default function EligibilityChecker({ onGoToGuide }) {
 
   return (
     <div className="max-w-md mx-auto pb-10">
-      <div className="bg-[#0B2545] text-white px-5 pt-6 pb-8">
-        <h1 className="text-[22px] font-bold leading-tight">Was your flight disrupted?<br />Check what you're owed.</h1>
-        <p className="text-[13px] text-blue-200 mt-1">Free check · based on EU/UK Regulation 261 · 60 seconds · we store nothing</p>
-        <div className="flex gap-1.5 mt-5">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-amber-400" : "bg-blue-900"}`} />
-          ))}
+      <div className="relative overflow-hidden bg-[#0B2545] text-white px-5 pt-7 pb-8">
+        <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 400 300" preserveAspectRatio="none">
+          <path d="M-10 270 Q150 240 410 50" fill="none" stroke="#2DD4BF" strokeWidth="2" strokeDasharray="2 10" strokeLinecap="round" />
+        </svg>
+        <div className="relative">
+          {step === 0 && (
+            <div className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold mb-3"
+              style={{ backgroundColor: "rgba(45,212,191,0.15)", color: "#5EEAD4" }}>
+              <Plane className="w-3 h-3" /> Flight delayed, cancelled or overbooked?
+            </div>
+          )}
+          <h1 className="text-[23px] font-extrabold leading-tight tracking-tight">
+            {step === 0 ? <>Your airline may owe you<br />up to <span className="text-teal-300">€600</span>.</> : <>Was your flight disrupted?<br />Check what you're owed.</>}
+          </h1>
+          <p className="text-[13px] text-blue-200 mt-1.5">Free check · EU/UK Regulation 261 · 60 seconds · we store nothing</p>
+          <div className="flex gap-1.5 mt-5">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-teal-400" : "bg-blue-900"}`} />
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="px-4 -mt-3 space-y-4">
+      {step === 0 && (
+        <div className="bg-white border-b border-slate-200">
+          <div className="px-4 py-4 grid grid-cols-2 gap-3">
+            {[
+              [Scale, "Grounded in law", "EU261, UK261 & Montreal"],
+              [Lock, "Nothing stored", "Stays in your browser"],
+              [Ban, "No airline ties", "Independent"],
+              [ShieldCheck, "Free to use", "Keep 100%"],
+            ].map(([Icon, t, s]) => (
+              <div key={t} className="flex items-start gap-2">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-teal-600" />
+                </div>
+                <div>
+                  <div className="text-[12.5px] font-semibold text-slate-800 leading-tight">{t}</div>
+                  <div className="text-[11px] text-slate-500 leading-tight">{s}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="px-4 mt-4 space-y-4">
         {step === 0 && (
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
             <Field label="From"><AirportSelect value={from} onChange={setFrom} exclude={to} /></Field>

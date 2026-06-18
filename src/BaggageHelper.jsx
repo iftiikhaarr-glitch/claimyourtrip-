@@ -125,7 +125,7 @@ export default function BaggageHelper({ onOpenKit }) {
     <div className="max-w-md mx-auto pb-12">
       <div className="text-white px-5 pt-6 pb-7" style={{ backgroundColor: NAVY }}>
         <div className="flex items-center gap-2 mb-3">
-          <Luggage className="w-6 h-6 text-amber-400" />
+          <Luggage className="w-6 h-6 text-teal-300" />
           <h1 className="text-2xl font-bold leading-tight">Baggage claim helper</h1>
         </div>
         <p className="text-sm text-blue-200 leading-snug">
@@ -206,7 +206,7 @@ export default function BaggageHelper({ onOpenKit }) {
 
             {/* insider tip */}
             <div className="rounded-2xl p-4 text-white" style={{ backgroundColor: NAVY }}>
-              <div className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">From someone who worked the airport</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-teal-300 mb-1">From someone who worked the airport</div>
               <p className="text-sm leading-snug">{data.tip}</p>
             </div>
 
@@ -224,18 +224,18 @@ export default function BaggageHelper({ onOpenKit }) {
             </div>
 
             {/* upsell: paid kit */}
-            <div className="bg-white rounded-2xl shadow-sm p-5 border-2 border-amber-300">
+            <div className="bg-white rounded-2xl shadow-sm p-5 border-2 border-teal-300">
               <div className="flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-amber-600" />
-                <div className="font-bold text-base text-slate-800">Get the full claim kit — EUR 7</div>
+                <Receipt className="w-5 h-5 text-teal-600" />
+                <div className="font-bold text-base text-slate-800">The complete claim kit — coming soon</div>
               </div>
               <p className="text-sm text-slate-600 leading-snug mt-1.5">
                 Follow-up letters, an escalation letter to the regulator, a printable receipt &amp; inventory tracker, and the depreciation-pushback script — everything to win a stubborn claim.
               </p>
-              <button onClick={onOpenKit} className="w-full bg-amber-400 rounded-xl py-3 font-bold mt-3" style={{ color: NAVY }}>
-                Unlock the claim kit
+              <button onClick={onOpenKit} className="w-full bg-teal-400 rounded-xl py-3 font-bold mt-3" style={{ color: NAVY }}>
+                See what's inside
               </button>
-              <p className="text-[10px] text-slate-400 mt-2 text-center">One-time payment · instant download · free letter above stays free</p>
+              <p className="text-[10px] text-slate-400 mt-2 text-center">Free letters above stay free · full kit coming soon</p>
             </div>
           </>
         )}

@@ -263,7 +263,7 @@ export default function ClaimGuide({ onGoToChecker }) {
         <div className="bg-[#0B2545] rounded-2xl p-5 text-white">
           <div className="font-bold text-[16px]">Not sure if you qualify?</div>
           <p className="text-[13px] text-blue-200 mt-1 mb-3">Run your flight through the free checker first — it tells you the exact amount in 60 seconds.</p>
-          <button onClick={onGoToChecker} className="w-full bg-amber-400 text-[#0B2545] font-bold rounded-xl py-3 flex items-center justify-center gap-2">
+          <button onClick={onGoToChecker} className="w-full bg-teal-400 text-[#0B2545] font-bold rounded-xl py-3 flex items-center justify-center gap-2">
             Check my flight <ArrowRight className="w-4 h-4" />
           </button>
         </div>
