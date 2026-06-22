@@ -8,6 +8,7 @@ import EligibilityChecker from "./EligibilityChecker.jsx";
 import ClaimGuide from "./ClaimGuide.jsx";
 import BaggageHelper from "./BaggageHelper.jsx";
 import { PrivacyPolicy, TermsOfService, AffiliateDisclosure } from "./LegalPages.jsx";
+import LetterGenerator from "./LetterGenerator.jsx";
 
 /* ---- Desktop-only side panels. Hidden below lg so mobile is untouched. ---- */
 
@@ -167,6 +168,7 @@ export default function App() {
           <div className="flex gap-1">
             <NavButton id="checker" label="Flights" />
             <NavButton id="baggage" label="Baggage" />
+            <NavButton id="letter" label="Letter" />
             <NavButton id="guide" label="Guide" />
           </div>
         </div>
@@ -174,7 +176,7 @@ export default function App() {
 
       {/* Three-column band: sidebars only show on lg+ and only on tool pages. */}
       {(() => {
-        const showSides = page === "checker" || page === "baggage" || page === "guide";
+        const showSides = page === "checker" || page === "baggage" || page === "guide" || page === "letter";
         return (
       <div className="max-w-5xl mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
         {showSides && <SidePanelLeft page={page} />}
@@ -182,6 +184,7 @@ export default function App() {
         <main className="flex-1 min-w-0">
           {page === "checker" && <EligibilityChecker onGoToGuide={() => go("guide")} />}
           {page === "baggage" && <BaggageHelper onOpenKit={() => setKitOpen(true)} />}
+          {page === "letter" && <LetterGenerator onBack={() => go("checker")} />}
           {page === "guide" && <ClaimGuide onGoToChecker={() => go("checker")} />}
           {page === "privacy" && <PrivacyPolicy onBack={() => go("checker")} />}
           {page === "terms" && <TermsOfService onBack={() => go("checker")} />}
