@@ -52,7 +52,18 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
   let amount = 0, eligible = false, careOnly = false;
 
   if (!covered) {
-    reasons.push(`This route isn't covered: EU/UK rules apply to flights departing the EU/UK, or arriving there on an EU/UK airline. Your flight departs ${dep[1]} (outside the EU/UK)${arrEU ? " and the airline is not EU/UK-based" : " and arrives outside the EU/UK"}.`);
+    // Honest regional guidance for Gulf/MENA routes (no fixed payout — these need proven loss)
+    const GULF = { DXB: "UAE GCAA", AUH: "UAE GCAA", DOH: "Qatar CAA", RUH: "Saudi GACA", JED: "Saudi GACA" };
+    const MENA = ["CAI", "AMM", "BEY", "IST", "CMN"];
+    const depGulf = GULF[dep[0]];
+    const regionTouch = GULF[dep[0]] || GULF[arr[0]] || MENA.includes(dep[0]) || MENA.includes(arr[0]);
+    reasons.push(`EU/UK fixed compensation doesn't apply here: those rules cover flights departing the EU/UK, or arriving there on an EU/UK airline. Your flight departs ${dep[1]} (outside the EU/UK).`);
+    if (regionTouch) {
+      const authority = depGulf || GULF[arr[0]] || "your local civil aviation authority";
+      reasons.push(`However, you are not without rights. For flights touching the Gulf/MENA region, the airline still owes you duty of care (meals after ~2 hours, hotel if stranded overnight), and under the Montreal Convention 1999 you can claim your actual, provable financial losses — hotels, replacement essentials, missed connections — with receipts.`);
+      reasons.push(`Unlike EU261's fixed sums, these claims pay back what you can prove you lost, not a flat amount. Submit a written claim to the airline first; if unresolved in ~30 days, escalate to ${authority}.`);
+      return { km, base, eligible: false, amount: 0, careOnly: true, regional: true, authority, reasons, covered: false };
+    }
     return { km, base, eligible, amount, careOnly, reasons, covered };
   }
   reasons.push(depEU
@@ -162,7 +173,13 @@ export default function EligibilityChecker({ onGoToGuide }) {
 
   return (
     <div className="max-w-md mx-auto pb-10">
-      <div className="relative overflow-hidden bg-[#0B2545] text-white px-5 pt-7 pb-8">
+      <div className="relative h-32 sm:h-36 bg-[#0B2545] overflow-hidden">
+        <img src="/flights.jpg" alt="Aircraft at the gate"
+          className="w-full h-full object-cover opacity-60"
+          onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(11,37,69,0.35), rgba(11,37,69,0.95))" }} />
+      </div>
+      <div className="relative overflow-hidden bg-[#0B2545] text-white px-5 pt-5 pb-8 -mt-1">
         <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 400 300" preserveAspectRatio="none">
           <path d="M-10 270 Q150 240 410 50" fill="none" stroke="#2DD4BF" strokeWidth="2" strokeDasharray="2 10" strokeLinecap="round" />
         </svg>
@@ -300,6 +317,12 @@ export default function EligibilityChecker({ onGoToGuide }) {
                     <div className="font-mono text-5xl font-bold mt-1">EUR {result.amount}</div>
                     <div className="text-[13px] opacity-90 mt-1">per passenger — a family of 4 could claim EUR {result.amount * 4}</div>
                   </>
+                ) : result.regional ? (
+                  <>
+                    <AlertTriangle className="w-8 h-8" />
+                    <div className="font-bold text-[18px] mt-2">No EU/UK payout — but you still have rights</div>
+                    <div className="text-[13px] opacity-90 mt-1">Gulf/MENA rules: care + claim your proven losses.</div>
+                  </>
                 ) : result.careOnly ? (
                   <>
                     <AlertTriangle className="w-8 h-8" />
@@ -345,6 +368,13 @@ export default function EligibilityChecker({ onGoToGuide }) {
               <button onClick={onGoToGuide}
                 className="w-full bg-emerald-600 text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition">
                 <Euro className="w-5 h-5" /> Show me how to claim it myself
+              </button>
+            )}
+
+            {result.regional && (
+              <button onClick={onGoToGuide}
+                className="w-full bg-[#0B2545] text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition">
+                <Euro className="w-5 h-5" /> See how to claim your losses
               </button>
             )}
 
