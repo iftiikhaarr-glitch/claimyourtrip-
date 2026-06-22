@@ -7,6 +7,7 @@ import Logo from "./Logo.jsx";
 import EligibilityChecker from "./EligibilityChecker.jsx";
 import ClaimGuide from "./ClaimGuide.jsx";
 import BaggageHelper from "./BaggageHelper.jsx";
+import { PrivacyPolicy, TermsOfService, AffiliateDisclosure } from "./LegalPages.jsx";
 
 /* ---- Desktop-only side panels. Hidden below lg so mobile is untouched. ---- */
 
@@ -160,6 +161,9 @@ export default function App() {
           {page === "checker" && <EligibilityChecker onGoToGuide={() => go("guide")} />}
           {page === "baggage" && <BaggageHelper onOpenKit={() => setKitOpen(true)} />}
           {page === "guide" && <ClaimGuide onGoToChecker={() => go("checker")} />}
+          {page === "privacy" && <PrivacyPolicy onBack={() => go("checker")} />}
+          {page === "terms" && <TermsOfService onBack={() => go("checker")} />}
+          {page === "affiliate" && <AffiliateDisclosure onBack={() => go("checker")} />}
         </main>
 
         <SidePanelRight onGoToGuide={() => go("guide")} />
@@ -184,6 +188,11 @@ export default function App() {
           <span className="font-bold text-sm text-[#0B2545]">Claim<span className="text-teal-500">YourTrip</span></span>
         </div>
         <p className="text-xs text-slate-400">Information service &middot; Not affiliated with any airline &middot; Not legal advice &middot; &copy; 2026</p>
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
+          <button onClick={() => go("privacy")} className="text-slate-500 hover:text-blue-600">Privacy Policy</button>
+          <button onClick={() => go("terms")} className="text-slate-500 hover:text-blue-600">Terms &amp; Disclaimer</button>
+          <button onClick={() => go("affiliate")} className="text-slate-500 hover:text-blue-600">Affiliate Disclosure</button>
+        </div>
       </footer>
     </div>
   );
