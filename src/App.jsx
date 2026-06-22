@@ -11,12 +11,19 @@ import { PrivacyPolicy, TermsOfService, AffiliateDisclosure } from "./LegalPages
 
 /* ---- Desktop-only side panels. Hidden below lg so mobile is untouched. ---- */
 
-function SidePanelLeft() {
-  const stats = [
+function SidePanelLeft({ page }) {
+  const flightStats = [
     [Euro, "\u20AC600", "Max compensation per passenger"],
     [Clock, "3 hrs", "Delay threshold to claim under EU261"],
     [Percent, "0%", "Commission \u2014 you keep all of it"],
   ];
+  const baggageStats = [
+    [Euro, "~\u20AC1,500", "Max baggage liability (Montreal Convention)"],
+    [Clock, "21 days", "Deadline to claim for a delayed bag"],
+    [Percent, "0%", "Commission \u2014 you keep all of it"],
+  ];
+  const stats = page === "baggage" ? baggageStats : flightStats;
+  const heading = page === "baggage" ? "What you could be owed" : "What you could be owed";
   const trust = [
     [Scale, "Grounded in law", "EU261, UK261 & Montreal Convention"],
     [Lock, "Nothing stored", "Everything stays in your browser"],
@@ -27,7 +34,7 @@ function SidePanelLeft() {
     <aside className="hidden lg:flex flex-col gap-4 w-72 shrink-0 pt-4">
       <div className="bg-[#0B2545] rounded-2xl p-5 text-white">
         <div className="text-[11px] font-bold uppercase tracking-wider text-teal-300 mb-4">
-          What you could be owed
+          {heading}
         </div>
         <div className="space-y-4">
           {stats.map(([Icon, big, label]) => (
@@ -66,17 +73,29 @@ function SidePanelLeft() {
   );
 }
 
-function SidePanelRight({ onGoToGuide }) {
-  const steps = [
+function SidePanelRight({ onGoToGuide, page }) {
+  const flightSteps = [
     [FileText, "Gather your proof", "Booking, boarding pass, delay notice."],
     [Send, "Write to the airline", "Use a ready-made letter, set a 14-day deadline."],
     [Building2, "Escalate if refused", "Take it to the regulator, then small claims."],
   ];
-  const faqs = [
+  const baggageSteps = [
+    [FileText, "Report it at the airport", "Get a PIR (Property Irregularity Report) before you leave."],
+    [Send, "Claim in writing fast", "7 days for damaged, 21 days for delayed bags."],
+    [Building2, "Keep your receipts", "Claim back essentials you had to buy while waiting."],
+  ];
+  const flightFaqs = [
     ["Do claims firms take a cut?", "Yes \u2014 typically 20\u201335%. Claiming yourself keeps all of it."],
     ["How long do I have?", "Usually 2\u20136 years for flights, depending on the country."],
     ["Is weather claimable?", "No \u2014 but technical faults and staff strikes usually are."],
   ];
+  const baggageFaqs = [
+    ["Delayed vs lost?", "A bag is usually declared lost after 21 days \u2014 then you claim its full value."],
+    ["What can I claim meanwhile?", "Reasonable essentials (clothes, toiletries) while your bag is delayed."],
+    ["Do I need the PIR?", "Yes \u2014 the airport report is the key proof for any baggage claim."],
+  ];
+  const steps = page === "baggage" ? baggageSteps : flightSteps;
+  const faqs = page === "baggage" ? baggageFaqs : flightFaqs;
   return (
     <aside className="hidden lg:flex flex-col gap-4 w-72 shrink-0 pt-4">
       <div className="bg-white rounded-2xl shadow-sm p-5">
@@ -153,9 +172,12 @@ export default function App() {
         </div>
       </div>
 
-      {/* Three-column band: sidebars only show on lg+. Center column is the original app. */}
+      {/* Three-column band: sidebars only show on lg+ and only on tool pages. */}
+      {(() => {
+        const showSides = page === "checker" || page === "baggage" || page === "guide";
+        return (
       <div className="max-w-5xl mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
-        <SidePanelLeft />
+        {showSides && <SidePanelLeft page={page} />}
 
         <main className="flex-1 min-w-0">
           {page === "checker" && <EligibilityChecker onGoToGuide={() => go("guide")} />}
@@ -166,8 +188,10 @@ export default function App() {
           {page === "affiliate" && <AffiliateDisclosure onBack={() => go("checker")} />}
         </main>
 
-        <SidePanelRight onGoToGuide={() => go("guide")} />
+        {showSides && <SidePanelRight onGoToGuide={() => go("guide")} page={page} />}
       </div>
+        );
+      })()}
 
       {kitOpen && (
         <div className="fixed inset-0 z-20 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setKitOpen(false)}>
