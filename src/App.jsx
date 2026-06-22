@@ -122,8 +122,8 @@ function SidePanelRight({ onGoToGuide, page }) {
             </div>
           ))}
         </div>
-        <button onClick={onGoToGuide}
-          className="w-full mt-4 bg-teal-400 text-[#0B2545] font-bold rounded-xl py-2.5 text-[13px]">
+        <button onClick={onGoToGuide} type="button"
+          className="relative z-10 w-full mt-4 bg-teal-400 hover:bg-teal-300 text-[#0B2545] font-bold rounded-xl py-2.5 text-[13px] cursor-pointer">
           Read the full guide
         </button>
       </div>
