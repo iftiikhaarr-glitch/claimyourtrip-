@@ -91,7 +91,28 @@ export default function LetterGenerator({ onBack }) {
       await navigator.clipboard.writeText(letter);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch { /* clipboard may be blocked; user can select manually */ }
+    } catch { /* clipboard may be blocked */ }
+  };
+
+  const printLetter = () => {
+    const w = window.open("", "_blank");
+    if (!w) return;
+    const safe = letter.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    w.document.write(`<!DOCTYPE html><html><head><title>Claim letter</title>
+      <meta charset="utf-8"/>
+      <style>
+        @page { margin: 22mm; }
+        body { font-family: Georgia, 'Times New Roman', serif; color: #1e293b; line-height: 1.6; font-size: 12pt; max-width: 720px; margin: 0 auto; padding: 24px; }
+        .letter { white-space: pre-wrap; }
+        .brand { margin-top: 36px; padding-top: 12px; border-top: 1px solid #cbd5e1; font-family: Arial, sans-serif; font-size: 9pt; color: #94a3b8; }
+        .brand b { color: #0B2545; }
+      </style></head>
+      <body>
+        <div class="letter">${safe}</div>
+        <div class="brand">Generated free at <b>ClaimYourTrip.com</b> &mdash; you keep 100% of your compensation.</div>
+        <script>window.onload = function(){ window.print(); }</script>
+      </body></html>`);
+    w.document.close();
   };
 
   return (
@@ -186,31 +207,17 @@ export default function LetterGenerator({ onBack }) {
               )}
             </div>
 
-            <div id="printable-letter" className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-2 no-print">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Your letter</span>
                 <button onClick={copy} className="flex items-center gap-1.5 text-[13px] font-semibold text-blue-600">
                   {copied ? <><Check className="w-4 h-4" /> Copied</> : <><Copy className="w-4 h-4" /> Copy</>}
                 </button>
               </div>
               <pre className="whitespace-pre-wrap text-[12px] text-slate-700 font-sans leading-relaxed">{letter}</pre>
-              <div className="print-brand mt-4 pt-3 border-t border-slate-200 text-[10px] text-slate-400">
-                Generated free at ClaimYourTrip.com &middot; You keep 100% of your compensation
-              </div>
             </div>
 
-            <style>{`
-              .print-brand { display: none; }
-              @media print {
-                body * { visibility: hidden; }
-                #printable-letter, #printable-letter * { visibility: visible; }
-                #printable-letter { position: absolute; left: 0; top: 0; width: 100%; border: none; background: #fff; padding: 24px; }
-                .no-print { display: none !important; }
-                .print-brand { display: block !important; }
-              }
-            `}</style>
-
-            <button onClick={() => window.print()}
+            <button onClick={printLetter}
               className="w-full flex items-center justify-center gap-2 bg-[#0B2545] text-white font-bold rounded-xl py-3 text-sm">
               <FileDown className="w-4 h-4" /> Print / Save as PDF
             </button>
