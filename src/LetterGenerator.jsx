@@ -3,7 +3,6 @@ import { Plane, Luggage, Copy, Check, FileDown, ArrowLeft, Sparkles } from "luci
 
 const NAVY = "#0B2545";
 
-/* Auto-suggested EU261 amount band based on delay + distance */
 function suggestAmount(distanceKm) {
   if (!distanceKm) return "[EUR 250 / 400 / 600 depending on distance]";
   const d = Number(distanceKm);
@@ -80,7 +79,7 @@ function Field({ label, children }) {
 const inputCls = "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 
 export default function LetterGenerator({ onBack }) {
-  const [kind, setKind] = useState(null); // 'flight' | 'baggage'
+  const [kind, setKind] = useState(null);
   const [f, setF] = useState({});
   const [copied, setCopied] = useState(false);
   const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
@@ -187,15 +186,29 @@ export default function LetterGenerator({ onBack }) {
               )}
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-2">
+            <div id="printable-letter" className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-2 no-print">
                 <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Your letter</span>
                 <button onClick={copy} className="flex items-center gap-1.5 text-[13px] font-semibold text-blue-600">
                   {copied ? <><Check className="w-4 h-4" /> Copied</> : <><Copy className="w-4 h-4" /> Copy</>}
                 </button>
               </div>
               <pre className="whitespace-pre-wrap text-[12px] text-slate-700 font-sans leading-relaxed">{letter}</pre>
+              <div className="print-brand mt-4 pt-3 border-t border-slate-200 text-[10px] text-slate-400">
+                Generated free at ClaimYourTrip.com &middot; You keep 100% of your compensation
+              </div>
             </div>
+
+            <style>{`
+              .print-brand { display: none; }
+              @media print {
+                body * { visibility: hidden; }
+                #printable-letter, #printable-letter * { visibility: visible; }
+                #printable-letter { position: absolute; left: 0; top: 0; width: 100%; border: none; background: #fff; padding: 24px; }
+                .no-print { display: none !important; }
+                .print-brand { display: block !important; }
+              }
+            `}</style>
 
             <button onClick={() => window.print()}
               className="w-full flex items-center justify-center gap-2 bg-[#0B2545] text-white font-bold rounded-xl py-3 text-sm">
