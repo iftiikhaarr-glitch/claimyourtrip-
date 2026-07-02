@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Routes, Route, NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import {
   X, Scale, Lock, Ban, ShieldCheck, Euro, Clock, Percent,
   FileText, Send, Building2
@@ -146,55 +147,50 @@ function SidePanelRight({ onGoToGuide, page }) {
 }
 
 export default function App() {
-  const [page, setPage] = useState("checker");
   const [kitOpen, setKitOpen] = useState(false);
-  const go = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const NavButton = ({ id, label }) => (
-    <button onClick={() => go(id)}
-      className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${page === id ? "bg-teal-400 text-[#0B2545]" : "text-blue-100 hover:bg-white/10"}`}>
-      {label}
-    </button>
-  );
+  const sidebarPage = location.pathname === "/baggage-claim-helper" ? "baggage" : "checker";
+  const showSides = ["/", "/baggage-claim-helper", "/claim-guide", "/letter-generator"].includes(location.pathname);
+
+  const navCls = ({ isActive }) =>
+    `px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isActive ? "bg-teal-400 text-[#0B2545]" : "text-blue-100 hover:bg-white/10"}`;
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
       <div className="bg-[#0B2545] sticky top-0 z-10 border-b border-white/10">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button onClick={() => go("checker")} className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <Logo size={32} />
             <span className="font-bold tracking-tight text-base text-white">Claim<span className="text-teal-300">YourTrip</span></span>
-          </button>
+          </Link>
           <div className="flex gap-1">
-            <NavButton id="checker" label="Flights" />
-            <NavButton id="baggage" label="Baggage" />
-            <NavButton id="letter" label="Letter" />
-            <NavButton id="guide" label="Guide" />
+            <NavLink to="/" end className={navCls}>Flights</NavLink>
+            <NavLink to="/baggage-claim-helper" className={navCls}>Baggage</NavLink>
+            <NavLink to="/letter-generator" className={navCls}>Letter</NavLink>
+            <NavLink to="/claim-guide" className={navCls}>Guide</NavLink>
           </div>
         </div>
       </div>
 
-      {/* Three-column band: sidebars only show on lg+ and only on tool pages. */}
-      {(() => {
-        const showSides = page === "checker" || page === "baggage" || page === "guide" || page === "letter";
-        return (
       <div className="max-w-5xl mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
-        {showSides && <SidePanelLeft page={page} />}
+        {showSides && <SidePanelLeft page={sidebarPage} />}
 
         <main className="flex-1 min-w-0">
-          {page === "checker" && <EligibilityChecker onGoToGuide={() => go("guide")} />}
-          {page === "baggage" && <BaggageHelper onOpenKit={() => setKitOpen(true)} />}
-          {page === "letter" && <LetterGenerator onBack={() => go("checker")} />}
-          {page === "guide" && <ClaimGuide onGoToChecker={() => go("checker")} />}
-          {page === "privacy" && <PrivacyPolicy onBack={() => go("checker")} />}
-          {page === "terms" && <TermsOfService onBack={() => go("checker")} />}
-          {page === "affiliate" && <AffiliateDisclosure onBack={() => go("checker")} />}
+          <Routes>
+            <Route path="/" element={<EligibilityChecker onGoToGuide={() => { navigate("/claim-guide"); window.scrollTo({ top: 0 }); }} />} />
+            <Route path="/baggage-claim-helper" element={<BaggageHelper onOpenKit={() => setKitOpen(true)} />} />
+            <Route path="/letter-generator" element={<LetterGenerator onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
+            <Route path="/claim-guide" element={<ClaimGuide onGoToChecker={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
+            <Route path="/privacy" element={<PrivacyPolicy onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
+            <Route path="/terms" element={<TermsOfService onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
+            <Route path="/affiliate-disclosure" element={<AffiliateDisclosure onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
+          </Routes>
         </main>
 
-        {showSides && <SidePanelRight onGoToGuide={() => go("guide")} page={page} />}
+        {showSides && <SidePanelRight onGoToGuide={() => { navigate("/claim-guide"); window.scrollTo({ top: 0 }); }} page={sidebarPage} />}
       </div>
-        );
-      })()}
 
       {kitOpen && (
         <div className="fixed inset-0 z-20 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setKitOpen(false)}>
@@ -216,9 +212,9 @@ export default function App() {
         </div>
         <p className="text-xs text-slate-400">Information service &middot; Not affiliated with any airline &middot; Not legal advice &middot; &copy; 2026</p>
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
-          <button onClick={() => go("privacy")} className="text-slate-500 hover:text-blue-600">Privacy Policy</button>
-          <button onClick={() => go("terms")} className="text-slate-500 hover:text-blue-600">Terms &amp; Disclaimer</button>
-          <button onClick={() => go("affiliate")} className="text-slate-500 hover:text-blue-600">Affiliate Disclosure</button>
+          <Link to="/privacy" className="text-slate-500 hover:text-blue-600">Privacy Policy</Link>
+          <Link to="/terms" className="text-slate-500 hover:text-blue-600">Terms &amp; Disclaimer</Link>
+          <Link to="/affiliate-disclosure" className="text-slate-500 hover:text-blue-600">Affiliate Disclosure</Link>
         </div>
       </footer>
     </div>
