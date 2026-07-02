@@ -378,6 +378,19 @@ export default function EligibilityChecker({ onGoToGuide }) {
               </button>
             )}
 
+            <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Plan your next trip</div>
+                <div className="text-[10px] text-slate-300">ad</div>
+              </div>
+              <div className="text-[13px] font-semibold text-slate-800">Compare flights from 700+ airlines</div>
+              <p className="text-[11px] text-slate-500 leading-snug mt-1 mb-3">Find and compare fares in one search — you always see the same price the airline shows.</p>
+              <a href="https://aviasales.tpo.mx/UCtRyHfI" target="_blank" rel="sponsored noopener noreferrer"
+                className="w-full bg-[#0B2545] text-white rounded-xl py-3 font-semibold text-[13px] flex items-center justify-center">
+                Search flights
+              </a>
+            </div>
+
             <div className="flex items-start gap-2 px-2">
               <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
               <p className="text-[11px] text-slate-400 leading-snug">
