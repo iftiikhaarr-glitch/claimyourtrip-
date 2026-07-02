@@ -95,9 +95,24 @@ function CopyBlock({ text }) {
 /* Affiliate recommendation block — context-aware product suggestion */
 function AffiliateCard({ situation }) {
   const offers = {
-    delayed: { title: "Track your bag in real time", text: "A Bluetooth luggage tracker (like an AirTag) tells you where your bag actually is — often before the airline knows.", cta: "See trackers" },
-    damaged: { title: "Cover the gap with travel insurance", text: "Good travel insurance pays for damage the airline depreciates away. Compare policies that include baggage cover.", cta: "Compare insurance" },
-    lost: { title: "Protect your next trip", text: "Travel insurance with baggage cover reimburses lost-bag value the airline won't. Worth it for checked bags.", cta: "Compare insurance" },
+    delayed: {
+      title: "Stuck without your bag? Stay connected",
+      text: "While you wait, an eSIM gets you instant mobile data to track your bag, call the airline, and rebook — no roaming fees.",
+      cta: "Get an eSIM",
+      href: "https://airalo.tpo.mx/0iBygHYy",
+    },
+    damaged: {
+      title: "Planning your next trip?",
+      text: "Compare flights from 700+ airlines in one search — you always see the same price the airline shows.",
+      cta: "Search flights",
+      href: "https://aviasales.tpo.mx/UCtRyHfI",
+    },
+    lost: {
+      title: "Planning your next trip?",
+      text: "Compare flights from 700+ airlines in one search — you always see the same price the airline shows.",
+      cta: "Search flights",
+      href: "https://aviasales.tpo.mx/UCtRyHfI",
+    },
   };
   const o = offers[situation];
   return (
@@ -108,9 +123,10 @@ function AffiliateCard({ situation }) {
       </div>
       <div className="font-bold text-base text-slate-800">{o.title}</div>
       <p className="text-sm text-slate-600 leading-snug mt-1 mb-3">{o.text}</p>
-      <button className="w-full border-2 border-slate-200 rounded-xl py-2.5 font-semibold text-sm text-slate-700 flex items-center justify-center gap-1.5">
+      <a href={o.href} target="_blank" rel="sponsored noopener noreferrer"
+        className="w-full border-2 border-slate-200 rounded-xl py-2.5 font-semibold text-sm text-slate-700 flex items-center justify-center gap-1.5">
         {o.cta} <ExternalLink className="w-3.5 h-3.5" />
-      </button>
+      </a>
       <p className="text-[10px] text-slate-400 mt-2 text-center">We may earn a commission, at no extra cost to you.</p>
     </div>
   );
