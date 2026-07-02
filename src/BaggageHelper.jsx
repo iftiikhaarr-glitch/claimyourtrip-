@@ -99,7 +99,7 @@ function AffiliateCard({ situation }) {
       title: "Stuck without your bag? Stay connected",
       text: "While you wait, an eSIM gets you instant mobile data to track your bag, call the airline, and rebook — no roaming fees.",
       cta: "Get an eSIM",
-      href: "https://airalo.tpo.mx/0iBygHYy",
+      href: "https://saily.tpo.mx/KBCm1AoI",
     },
     damaged: {
       title: "Planning your next trip?",
