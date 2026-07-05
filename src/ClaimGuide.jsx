@@ -34,7 +34,7 @@ const REGIONS = [
     pays: "What you actually get:",
     bands: [["Cancelled / major change & you don't fly", "Full cash refund"], ["Domestic delay 3+ hrs & you don't fly", "Full cash refund"], ["International delay 6+ hrs & you don't fly", "Full cash refund"]],
     triggers: ["Refund must be cash to your original payment — not a voucher", "Denied boarding (bumping): cash compensation up to about $2,150", "Tarmac delays over 3 hrs domestic / 4 hrs international: you can deplane"],
-    noPay: "2026 update: the rule that would have forced airlines to PAY compensation for delays was withdrawn in November 2025. For ordinary delays there is no cash payout — only your refund right if you choose not to travel. Airlines push vouchers; you can insist on cash.",
+    noPay: "2026 update: a Biden-era proposal (December 2024) that would have required US airlines to pay cash compensation ($200–$775) for delays within their control was formally withdrawn by the DOT in November 2025. The proposal never took effect, so US delay compensation rules haven't changed — refunds if you don't fly, bumping compensation, and each airline's own customer service plan remain the framework. Airlines push vouchers; you can insist on cash for refund-eligible situations.",
     care: "No federal law forces meals or hotels — it depends on each airline's own customer service plan. Check the specific airline's commitments.",
     escalate: "File a complaint directly with the US Department of Transportation (DOT) through its official complaint portal. The DOT fines airlines that don't comply.",
     deadline: "Act fast; airlines have internal deadlines. Request bumping compensation the same day.",

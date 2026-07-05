@@ -16,6 +16,7 @@ function assessTrain({ type, delayMins, ticketPrice, journeyType }) {
 
   if (journeyType === "domestic_exempt") {
     reasons.push("Heads-up: some Member States exempt certain domestic, regional, or historical rail services from parts of this regulation. Your journey may be covered by a narrower set of rights than shown below — check the operator's Conditions of Carriage to confirm.");
+    reasons.push("If your journey is covered — some Member States exempt certain domestic, regional, or historical rail services from parts of Regulation (EU) 2021/782 — the figure below applies. Check the operator's Conditions of Carriage to confirm coverage before you rely on it.");
   }
 
   const price = Number(ticketPrice) || 0;
@@ -106,7 +107,7 @@ export default function TrainClaimChecker({ onGoToLetter }) {
             </div>
           )}
           <h1 className="text-[23px] font-extrabold leading-tight tracking-tight">
-            {step === 0 ? <>You may be entitled to claim<br /><span className="text-teal-300">25% or 50%</span> of your ticket.</> : <>Was your train journey disrupted?<br />Check what you're owed.</>}
+            {step === 0 ? <>You may have refund and compensation rights under EU passenger law.</> : <>Was your train journey disrupted?<br />Check what you're owed.</>}
           </h1>
           <p className="text-[13px] text-blue-200 mt-1.5">Free check · EU Regulation 2021/782 · 60 seconds · we store nothing</p>
           <div className="flex gap-1.5 mt-5">

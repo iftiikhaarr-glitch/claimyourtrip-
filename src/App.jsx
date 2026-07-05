@@ -16,12 +16,12 @@ import LetterGenerator from "./LetterGenerator.jsx";
 
 function SidePanelLeft({ page }) {
   const flightStats = [
-    [Euro, "\u20AC600", "Max compensation per passenger"],
+    [Euro, "\u20AC600", "Max per passenger (long-haul, EU261)"],
     [Clock, "3 hrs", "Delay threshold to claim under EU261"],
     [Percent, "0%", "Commission \u2014 you keep all of it"],
   ];
   const baggageStats = [
-    [Euro, "~\u20AC1,500", "Max baggage liability (Montreal Convention)"],
+    [Euro, "~\u20AC1,900", "Max baggage liability (Montreal Convention limit)"],
     [Clock, "21 days", "Deadline to claim for a delayed bag"],
     [Percent, "0%", "Commission \u2014 you keep all of it"],
   ];

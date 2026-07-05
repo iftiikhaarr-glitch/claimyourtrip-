@@ -30,7 +30,7 @@ function H({ children }) {
 export function PrivacyPolicy({ onBack }) {
   useSeo("Privacy Policy | ClaimYourTrip", "Privacy policy for ClaimYourTrip.com.");
   return (
-    <Shell title="Privacy Policy" updated="June 2026" onBack={onBack}>
+    <Shell title="Privacy Policy" updated="5 July 2026" onBack={onBack}>
       <p>
         ClaimYourTrip ("we", "us") respects your privacy. This page explains, in plain language, what
         information we do and don't collect when you use claimyourtrip.com. The short version: we collect
@@ -40,9 +40,8 @@ export function PrivacyPolicy({ onBack }) {
       <H>The eligibility checker stores nothing</H>
       <p>
         When you use our flight or baggage checker, everything you enter — delay times, flight details,
-        reasons — stays inside your own web browser. It is never sent to us, never saved on a server, and
-        never stored in any database. When you close the tab, it is gone. We could not see your answers
-        even if we wanted to.
+        reasons — stays inside your own web browser. It is never sent to us, never saved on a server of
+        ours, and never stored in any database of ours. When you close the tab, it is gone.
       </p>
 
       <H>What we do collect</H>
@@ -65,6 +64,21 @@ export function PrivacyPolicy({ onBack }) {
         you leave our site.
       </p>
 
+      <H>Email waitlist (Brevo)</H>
+      <p>
+        If you choose to submit your email address to join our waitlist for the upcoming Claim Kit, we
+        store that email address using Brevo (a third-party email marketing service). We use it only to
+        (a) notify you when the Claim Kit is available and (b) send you the free starter guide you
+        requested.
+      </p>
+      <ul className="list-disc pl-5 space-y-1">
+        <li><strong>What we store:</strong> your email address, and the date/time you submitted it.</li>
+        <li><strong>What we don't do:</strong> we don't sell, rent, share, or use your email for unrelated marketing.</li>
+        <li><strong>Your rights:</strong> you can request access to, correction of, or deletion of your data at any time by emailing support@claimyourtrip.com. Under UK/EU data protection law, you also have the right to withdraw consent, request a copy of your data, and lodge a complaint with your local data protection authority.</li>
+        <li><strong>Where it's stored:</strong> Brevo processes data in the EU. See Brevo's own privacy policy at brevo.com/legal/privacypolicy/ for details of its processing.</li>
+        <li><strong>How long we keep it:</strong> until you unsubscribe or ask us to delete it.</li>
+      </ul>
+
       <H>Your rights</H>
       <p>
         Depending on where you live (including the EU and UK under GDPR), you may have the right to ask
@@ -79,7 +93,8 @@ export function PrivacyPolicy({ onBack }) {
       <H>Changes</H>
       <p>
         We may update this policy as the site grows. The "last updated" date above will always reflect the
-        current version.
+        current version. This policy was last updated on 5 July 2026 to add details about our email
+        waitlist feature.
       </p>
     </Shell>
   );

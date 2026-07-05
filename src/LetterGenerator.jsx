@@ -97,7 +97,7 @@ Please arrange payment to me within 14 days of the date of this letter. If I do 
 
 I have attached copies of my ticket(s) and any evidence of the delay as supporting documents.
 
-I am submitting this claim within the 3-month deadline required under Regulation (EU) 2021/782 for rail passenger rights, and I look forward to your prompt reply.
+I look forward to your prompt reply.
 
 Yours faithfully,
 ${f.name || "[Your name]"}
@@ -341,7 +341,7 @@ export default function LetterGenerator({ onBack }) {
             </div>
 
             <p className="text-[11px] text-slate-400 leading-snug">
-              Fill any remaining [bracketed] fields before sending. This is general information, not legal advice. ClaimYourTrip is not a law firm and does not file claims on your behalf.
+              Fill any remaining [bracketed] fields before sending. General information, not legal advice. ClaimYourTrip is not a law firm; this letter is a template based on your inputs and applicable passenger-rights rules (EU261/UK261 for flights, Montreal Convention for baggage, EU 2021/782 for rail). Verify current rules with the airline, operator, or an official regulator before relying on it. No guarantee of outcome.
             </p>
           </>
         )}

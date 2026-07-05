@@ -76,7 +76,7 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
 
   if (type === "denied") {
     eligible = true; amount = base;
-    reasons.push("Denied boarding against your will (e.g. overbooking) entitles you to immediate compensation — the airline has no excuse here.");
+    reasons.push("Denied boarding against your will (e.g. overbooking) generally entitles you to compensation. Limited exemptions exist (safety, health, or invalid travel documents) — but overbooking itself is not one.");
   } else if (type === "cancel") {
     if (notice === "14plus") {
       reasons.push("The airline told you 14+ days before departure, so no compensation is owed — only a refund or rerouting.");
@@ -145,7 +145,7 @@ const AirportSelect = ({ value, onChange, exclude }) => (
 export default function EligibilityChecker({ onGoToGuide }) {
   useSeo(
     "Flight Delay & Cancellation Compensation Checker | ClaimYourTrip",
-    "Check if you're owed up to €600 for a delayed or cancelled flight. Free, instant eligibility check — claim directly from the airline and keep 100%."
+    "Check if you may be owed up to €600 for a delayed or cancelled flight. Free, instant eligibility check — claim directly from the airline and keep 100%."
   );
   const [step, setStep] = useState(0);
   const [from, setFrom] = useState("");
@@ -312,7 +312,7 @@ export default function EligibilityChecker({ onGoToGuide }) {
               <div className={`px-5 py-6 text-white ${result.eligible ? "bg-emerald-600" : result.careOnly ? "bg-amber-500" : "bg-slate-500"}`}>
                 {result.eligible ? (
                   <>
-                    <div className="text-[12px] uppercase tracking-widest opacity-80">You're likely owed</div>
+                    <div className="text-[12px] uppercase tracking-widest opacity-80">You may be entitled to claim</div>
                     <div className="font-mono text-5xl font-bold mt-1">EUR {result.amount}</div>
                     <div className="text-[13px] opacity-90 mt-1">per passenger — a family of 4 could claim EUR {result.amount * 4}</div>
                   </>
@@ -380,7 +380,7 @@ export default function EligibilityChecker({ onGoToGuide }) {
             <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
               <div className="flex items-center justify-between mb-1">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Plan your next trip</div>
-                <div className="text-[10px] text-slate-300">ad</div>
+                <div className="text-[11px] font-semibold text-slate-500">AD</div>
               </div>
               <div className="text-[13px] font-semibold text-slate-800">Compare flights from 700+ airlines</div>
               <p className="text-[11px] text-slate-500 leading-snug mt-1 mb-3">Find and compare fares in one search — you always see the same price the airline shows.</p>

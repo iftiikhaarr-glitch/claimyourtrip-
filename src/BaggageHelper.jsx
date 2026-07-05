@@ -120,7 +120,7 @@ function AffiliateCard({ situation }) {
     <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
       <div className="flex items-center justify-between mb-1">
         <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Recommended</div>
-        <div className="text-[10px] text-slate-300">ad</div>
+        <div className="text-[11px] font-semibold text-slate-500">AD</div>
       </div>
       <div className="font-bold text-base text-slate-800">{o.title}</div>
       <p className="text-sm text-slate-600 leading-snug mt-1 mb-3">{o.text}</p>
@@ -254,7 +254,7 @@ export default function BaggageHelper({ onOpenKit }) {
                 <div className="font-bold text-base text-white">The Complete Claim Kit</div>
               </div>
               <p className="text-sm text-blue-100 leading-snug mt-1.5">
-                13 letter templates, a claim tracker, and the rejection-rebuttal scripts that get stubborn claims paid — everything the pros use, none of the 30% fee.
+                13 letter templates, a claim tracker, and rebuttal scripts to handle stubborn claims yourself — keeping 100% of the payout instead of the 25–35% cut agencies typically charge.
               </p>
               <ul className="text-[12px] text-blue-100 mt-2 space-y-1">
                 <li>✓ Rebuttal letters for "technical fault" &amp; "bad weather" excuses</li>
