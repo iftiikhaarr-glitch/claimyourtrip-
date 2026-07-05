@@ -245,18 +245,26 @@ export default function BaggageHelper({ onOpenKit }) {
             </div>
 
             {/* upsell: paid kit */}
-            <div className="bg-white rounded-2xl shadow-sm p-5 border-2 border-teal-300">
-              <div className="flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-teal-600" />
-                <div className="font-bold text-base text-slate-800">The complete claim kit — coming soon</div>
+            <div className="relative bg-gradient-to-br from-[#0B2545] to-[#123a63] rounded-2xl shadow-lg p-5 border-2 border-teal-300 overflow-hidden">
+              <div className="absolute top-0 right-0 bg-teal-400 text-[#0B2545] text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg">
+                Coming soon
               </div>
-              <p className="text-sm text-slate-600 leading-snug mt-1.5">
-                Follow-up letters, an escalation letter to the regulator, a printable receipt &amp; inventory tracker, and the depreciation-pushback script — everything to win a stubborn claim.
+              <div className="flex items-center gap-2 mt-1">
+                <Receipt className="w-5 h-5 text-teal-300" />
+                <div className="font-bold text-base text-white">The Complete Claim Kit</div>
+              </div>
+              <p className="text-sm text-blue-100 leading-snug mt-1.5">
+                13 letter templates, a claim tracker, and the rejection-rebuttal scripts that get stubborn claims paid — everything the pros use, none of the 30% fee.
               </p>
-              <button onClick={onOpenKit} className="w-full bg-teal-400 rounded-xl py-3 font-bold mt-3" style={{ color: NAVY }}>
-                See what's inside
+              <ul className="text-[12px] text-blue-100 mt-2 space-y-1">
+                <li>✓ Rebuttal letters for "technical fault" &amp; "bad weather" excuses</li>
+                <li>✓ Full regulator escalation contact sheet</li>
+                <li>✓ Printable claim tracker</li>
+              </ul>
+              <button onClick={onOpenKit} className="w-full bg-teal-400 hover:bg-teal-300 rounded-xl py-3 font-bold mt-3 transition" style={{ color: "#0B2545" }}>
+                Get early access
               </button>
-              <p className="text-[10px] text-slate-400 mt-2 text-center">Free letters above stay free · full kit coming soon</p>
+              <p className="text-[10px] text-blue-200 mt-2 text-center opacity-80">Free letters above stay free · full kit coming soon</p>
             </div>
           </>
         )}

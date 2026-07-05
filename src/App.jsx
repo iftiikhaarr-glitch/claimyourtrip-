@@ -146,6 +146,69 @@ function SidePanelRight({ onGoToGuide, page }) {
   );
 }
 
+function KitModalContent() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMsg(data.error || "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
+      setStatus("success");
+    } catch (err) {
+      setErrorMsg("Something went wrong. Please try again.");
+      setStatus("error");
+    }
+  };
+
+  if (status === "success") {
+    return (
+      <>
+        <div className="font-bold text-lg text-slate-800">You're on the list! 🎉</div>
+        <p className="text-sm text-slate-600 leading-snug mt-2">
+          We'll email you the moment the full claim kit is ready. In the meantime, here's our free starter guide to get going right now.
+        </p>
+        <a href="/claim-pack-free.pdf" target="_blank" rel="noopener noreferrer"
+          className="w-full bg-[#0B2545] text-white rounded-xl py-3 font-bold mt-4 flex items-center justify-center">
+          Download your free guide
+        </a>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="font-bold text-lg text-slate-800">Claim kit — coming soon</div>
+      <p className="text-sm text-slate-600 leading-snug mt-2">
+        Want to know the moment it's ready? Leave your email and we'll also send you our free starter guide right now.
+      </p>
+      <form onSubmit={handleSubmit} className="mt-4">
+        <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-teal-400 outline-none" />
+        {status === "error" && <p className="text-red-500 text-xs mt-2">{errorMsg}</p>}
+        <button type="submit" disabled={status === "loading"}
+          className="w-full bg-teal-400 rounded-xl py-3 font-bold mt-3 disabled:opacity-60" style={{ color: "#0B2545" }}>
+          {status === "loading" ? "Sending..." : "Notify me + send free guide"}
+        </button>
+      </form>
+    </>
+  );
+}
+
 export default function App() {
   const [kitOpen, setKitOpen] = useState(false);
   const navigate = useNavigate();
@@ -196,11 +259,7 @@ export default function App() {
         <div className="fixed inset-0 z-20 bg-black/50 flex items-end sm:items-center justify-center p-4" onClick={() => setKitOpen(false)}>
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 relative" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setKitOpen(false)} className="absolute top-4 right-4 text-slate-400"><X className="w-5 h-5" /></button>
-            <div className="font-bold text-lg text-slate-800">Claim kit &mdash; coming soon</div>
-            <p className="text-sm text-slate-600 leading-snug mt-2">
-              The full claim kit will be available to download here shortly. In the meantime, the free letters and step-by-step guide above give you everything you need to start your claim.
-            </p>
-            <button onClick={() => setKitOpen(false)} className="w-full bg-[#0B2545] text-white rounded-xl py-3 font-bold mt-4">Got it</button>
+            <KitModalContent />
           </div>
         </div>
       )}
