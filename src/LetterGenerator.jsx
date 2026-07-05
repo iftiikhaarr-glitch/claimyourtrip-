@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plane, Luggage, Copy, Check, FileDown, ArrowLeft, Sparkles } from "lucide-react";
+import { useSeo } from "./hooks/useSeo.js";
 
 const NAVY = "#0B2545";
 
@@ -79,6 +80,10 @@ function Field({ label, children }) {
 const inputCls = "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
 
 export default function LetterGenerator({ onBack }) {
+  useSeo(
+    "Free Flight & Baggage Claim Letter Generator | ClaimYourTrip",
+    "Generate a ready-to-send compensation claim letter for flight delays, cancellations, or baggage issues in under a minute."
+  );
   const [kind, setKind] = useState(null);
   const [f, setF] = useState({});
   const [copied, setCopied] = useState(false);

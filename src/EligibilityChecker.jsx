@@ -4,6 +4,7 @@ import {
   AlertTriangle, Hotel, UtensilsCrossed, Phone, ShieldCheck, RefreshCw,
   Scale, Lock, Ban
 } from "lucide-react";
+import { useSeo } from "./hooks/useSeo.js";
 
 const AIRPORTS = [
   ["LHR","London Heathrow",51.47,-0.45,"UK"],["LGW","London Gatwick",51.15,-0.18,"UK"],["MAN","Manchester",53.35,-2.27,"UK"],
@@ -142,6 +143,10 @@ const AirportSelect = ({ value, onChange, exclude }) => (
 );
 
 export default function EligibilityChecker({ onGoToGuide }) {
+  useSeo(
+    "Flight Delay & Cancellation Compensation Checker | ClaimYourTrip",
+    "Check if you're owed up to €600 for a delayed or cancelled flight. Free, instant eligibility check — claim directly from the airline and keep 100%."
+  );
   const [step, setStep] = useState(0);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");

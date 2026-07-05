@@ -3,6 +3,7 @@ import {
   ChevronDown, Copy, Check, FileText, Send, AlertTriangle,
   Building2, Scale, ArrowRight, Globe, Info, ShieldCheck
 } from "lucide-react";
+import { useSeo } from "./hooks/useSeo.js";
 
 const REGIONS = [
   {
@@ -194,6 +195,10 @@ function Accordion({ region, open, onToggle }) {
 }
 
 export default function ClaimGuide({ onGoToChecker }) {
+  useSeo(
+    "How to Claim Flight Compensation Yourself | ClaimYourTrip",
+    "A step-by-step guide to claiming flight delay or cancellation compensation directly from the airline — no claims agency needed."
+  );
   const [openRegion, setOpenRegion] = useState("eu");
   const [openLetter, setOpenLetter] = useState(null);
 

@@ -1,4 +1,5 @@
 import { ArrowLeft } from "lucide-react";
+import { useSeo } from "./hooks/useSeo.js";
 
 const NAVY = "#0B2545";
 
@@ -27,6 +28,7 @@ function H({ children }) {
 }
 
 export function PrivacyPolicy({ onBack }) {
+  useSeo("Privacy Policy | ClaimYourTrip", "Privacy policy for ClaimYourTrip.com.");
   return (
     <Shell title="Privacy Policy" updated="June 2026" onBack={onBack}>
       <p>
@@ -84,6 +86,7 @@ export function PrivacyPolicy({ onBack }) {
 }
 
 export function TermsOfService({ onBack }) {
+  useSeo("Terms & Disclaimer | ClaimYourTrip", "Terms of service and legal disclaimer for ClaimYourTrip.com.");
   return (
     <Shell title="Terms & Disclaimer" updated="June 2026" onBack={onBack}>
       <p>
@@ -143,6 +146,7 @@ export function TermsOfService({ onBack }) {
 }
 
 export function AffiliateDisclosure({ onBack }) {
+  useSeo("Affiliate Disclosure | ClaimYourTrip", "How ClaimYourTrip earns commission through affiliate partnerships.");
   return (
     <Shell title="Affiliate Disclosure" updated="June 2026" onBack={onBack}>
       <p>

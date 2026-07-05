@@ -3,6 +3,7 @@ import {
   Luggage, Clock, Wrench, PackageX, CheckCircle2, AlertTriangle, Copy, Check,
   Calendar, FileText, Receipt, ArrowRight, ShieldCheck, ExternalLink
 } from "lucide-react";
+import { useSeo } from "./hooks/useSeo.js";
 
 const NAVY = "#0B2545";
 
@@ -133,6 +134,10 @@ function AffiliateCard({ situation }) {
 }
 
 export default function BaggageHelper({ onOpenKit }) {
+  useSeo(
+    "Lost, Delayed or Damaged Baggage Claim Help | ClaimYourTrip",
+    "Claim compensation for delayed, lost, or damaged luggage under the Montreal Convention. Step-by-step help, free letter templates, no agency fees."
+  );
   const [sit, setSit] = useState(null);
   const data = sit ? SITUATIONS[sit] : null;
   const c = data ? COLOR[data.color] : null;
