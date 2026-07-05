@@ -203,7 +203,7 @@ export default function ClaimGuide({ onGoToChecker }) {
   const [openLetter, setOpenLetter] = useState(null);
 
   return (
-    <div className="max-w-md mx-auto pb-12">
+    <div className="max-w-xl mx-auto pb-12">
       <div className="bg-[#0B2545] text-white px-5 pt-6 pb-7">
         <h1 className="text-[24px] font-bold leading-tight">Claim it yourself.<br />Keep 100% of it.</h1>
         <p className="text-[13px] text-blue-200 mt-2 leading-snug">

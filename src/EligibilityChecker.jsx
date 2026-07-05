@@ -177,7 +177,7 @@ export default function EligibilityChecker({ onGoToGuide }) {
   const restart = () => { setStep(0); setFrom(""); setTo(""); setEuCarrier(""); setType(""); setDelayHrs(3); setNotice(""); setReason(""); };
 
   return (
-    <div className="max-w-md mx-auto pb-10">
+    <div className="max-w-xl mx-auto pb-10">
       <div className="relative h-32 sm:h-36 bg-[#0B2545] overflow-hidden">
         <img src="/flights.jpg" alt="Aircraft at the gate"
           className="w-full h-full object-cover opacity-60"

@@ -143,7 +143,7 @@ export default function BaggageHelper({ onOpenKit }) {
   const c = data ? COLOR[data.color] : null;
 
   return (
-    <div className="max-w-md mx-auto pb-12">
+    <div className="max-w-xl mx-auto pb-12">
       <div className="text-white px-5 pt-6 pb-7" style={{ backgroundColor: NAVY }}>
         <div className="flex items-center gap-2 mb-3">
           <Luggage className="w-6 h-6 text-teal-300" />

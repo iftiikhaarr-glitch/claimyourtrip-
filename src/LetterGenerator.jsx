@@ -121,7 +121,7 @@ export default function LetterGenerator({ onBack }) {
   };
 
   return (
-    <div className="max-w-md mx-auto pb-12">
+    <div className="max-w-xl mx-auto pb-12">
       <div className="text-white px-5 pt-6 pb-7" style={{ backgroundColor: NAVY }}>
         {onBack && (
           <button onClick={onBack} className="flex items-center gap-1.5 text-blue-200 text-sm mb-3">

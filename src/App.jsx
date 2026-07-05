@@ -223,7 +223,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
       <div className="bg-[#0B2545] sticky top-0 z-10 border-b border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <Logo size={32} />
             <span className="font-bold tracking-tight text-base text-white">Claim<span className="text-teal-300">YourTrip</span></span>
@@ -237,7 +237,7 @@ export default function App() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
+      <div className="max-w-6xl mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
         {showSides && <SidePanelLeft page={sidebarPage} />}
 
         <main className="flex-1 min-w-0">
@@ -264,7 +264,7 @@ export default function App() {
         </div>
       )}
 
-      <footer className="max-w-5xl mx-auto px-4 py-6 flex flex-col items-center gap-2 text-center">
+      <footer className="max-w-6xl mx-auto px-4 py-6 flex flex-col items-center gap-2 text-center">
         <div className="flex items-center gap-2">
           <Logo size={24} />
           <span className="font-bold text-sm text-[#0B2545]">Claim<span className="text-teal-500">YourTrip</span></span>
