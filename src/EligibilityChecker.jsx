@@ -178,12 +178,6 @@ export default function EligibilityChecker({ onGoToGuide }) {
 
   return (
     <div className="max-w-xl mx-auto pb-10">
-      <div className="relative h-32 sm:h-36 bg-[#0B2545] overflow-hidden">
-        <img src="/flights.jpg" alt="Aircraft at the gate"
-          className="w-full h-full object-cover opacity-60"
-          onError={(e) => { e.currentTarget.style.display = "none"; }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(11,37,69,0.35), rgba(11,37,69,0.95))" }} />
-      </div>
       <div className="relative overflow-hidden bg-[#0B2545] text-white px-5 pt-5 pb-8 -mt-1">
         <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 400 300" preserveAspectRatio="none">
           <path d="M-10 270 Q150 240 410 50" fill="none" stroke="#2DD4BF" strokeWidth="2" strokeDasharray="2 10" strokeLinecap="round" />
