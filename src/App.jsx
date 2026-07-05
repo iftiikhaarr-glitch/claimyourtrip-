@@ -8,6 +8,7 @@ import Logo from "./Logo.jsx";
 import EligibilityChecker from "./EligibilityChecker.jsx";
 import ClaimGuide from "./ClaimGuide.jsx";
 import BaggageHelper from "./BaggageHelper.jsx";
+import TrainClaimChecker from "./TrainClaimChecker.jsx";
 import { PrivacyPolicy, TermsOfService, AffiliateDisclosure } from "./LegalPages.jsx";
 import LetterGenerator from "./LetterGenerator.jsx";
 
@@ -24,7 +25,12 @@ function SidePanelLeft({ page }) {
     [Clock, "21 days", "Deadline to claim for a delayed bag"],
     [Percent, "0%", "Commission \u2014 you keep all of it"],
   ];
-  const stats = page === "baggage" ? baggageStats : flightStats;
+  const trainStats = [
+    [Euro, "50%", "Max refund of ticket price (120+ min delay)"],
+    [Clock, "3 months", "Deadline to file your complaint"],
+    [Percent, "0%", "Commission \u2014 you keep all of it"],
+  ];
+  const stats = page === "baggage" ? baggageStats : page === "train" ? trainStats : flightStats;
   const heading = page === "baggage" ? "What you could be owed" : "What you could be owed";
   const trust = [
     [Scale, "Grounded in law", "EU261, UK261 & Montreal Convention"],
@@ -96,8 +102,18 @@ function SidePanelRight({ onGoToGuide, page }) {
     ["What can I claim meanwhile?", "Reasonable essentials (clothes, toiletries) while your bag is delayed."],
     ["Do I need the PIR?", "Yes \u2014 the airport report is the key proof for any baggage claim."],
   ];
-  const steps = page === "baggage" ? baggageSteps : flightSteps;
-  const faqs = page === "baggage" ? baggageFaqs : flightFaqs;
+  const trainSteps = [
+    [FileText, "Gather your ticket & proof", "Ticket, booking confirmation, delay or cancellation notice."],
+    [Send, "Write to the operator", "Use a ready-made letter citing Regulation (EU) 2021/782."],
+    [Building2, "Escalate if refused", "Take it to the national rail regulator, then small claims."],
+  ];
+  const trainFaqs = [
+    ["How much can I claim?", "25% of your ticket price for 60\u2013119 minute delays, 50% for 120+ minutes."],
+    ["How long do I have?", "Just 3 months from the incident \u2014 much shorter than flight claims."],
+    ["What about lost baggage?", "EU rail has no fixed baggage payout table \u2014 it depends on the operator's own terms."],
+  ];
+  const steps = page === "baggage" ? baggageSteps : page === "train" ? trainSteps : flightSteps;
+  const faqs = page === "baggage" ? baggageFaqs : page === "train" ? trainFaqs : flightFaqs;
   return (
     <aside className="hidden lg:flex flex-col gap-4 w-72 shrink-0 pt-4">
       <div className="bg-white rounded-2xl shadow-sm p-5">
@@ -125,7 +141,7 @@ function SidePanelRight({ onGoToGuide, page }) {
         </div>
         <button onClick={onGoToGuide} type="button"
           className="relative z-10 w-full mt-4 bg-teal-400 hover:bg-teal-300 text-[#0B2545] font-bold rounded-xl py-2.5 text-[13px] cursor-pointer">
-          Read the full guide
+          {page === "train" ? "Get my claim letter" : "Read the full guide"}
         </button>
       </div>
 
@@ -214,8 +230,10 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const sidebarPage = location.pathname === "/baggage-claim-helper" ? "baggage" : "checker";
-  const showSides = ["/", "/baggage-claim-helper", "/claim-guide", "/letter-generator"].includes(location.pathname);
+  const sidebarPage = location.pathname === "/baggage-claim-helper" ? "baggage"
+    : location.pathname === "/train-delay-compensation" ? "train"
+      : "checker";
+  const showSides = ["/", "/baggage-claim-helper", "/claim-guide", "/letter-generator", "/train-delay-compensation"].includes(location.pathname);
 
   const navCls = ({ isActive }) =>
     `px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isActive ? "bg-teal-400 text-[#0B2545]" : "text-blue-100 hover:bg-white/10"}`;
@@ -231,6 +249,7 @@ export default function App() {
           <div className="flex gap-1">
             <NavLink to="/" end className={navCls}>Flights</NavLink>
             <NavLink to="/baggage-claim-helper" className={navCls}>Baggage</NavLink>
+            <NavLink to="/train-delay-compensation" className={navCls}>Train</NavLink>
             <NavLink to="/letter-generator" className={navCls}>Letter</NavLink>
             <NavLink to="/claim-guide" className={navCls}>Guide</NavLink>
           </div>
@@ -244,6 +263,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<EligibilityChecker onGoToGuide={() => { navigate("/claim-guide"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/baggage-claim-helper" element={<BaggageHelper onOpenKit={() => setKitOpen(true)} />} />
+            <Route path="/train-delay-compensation" element={<TrainClaimChecker onGoToLetter={() => { navigate("/letter-generator"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/letter-generator" element={<LetterGenerator onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/claim-guide" element={<ClaimGuide onGoToChecker={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/privacy" element={<PrivacyPolicy onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
@@ -252,7 +272,10 @@ export default function App() {
           </Routes>
         </main>
 
-        {showSides && <SidePanelRight onGoToGuide={() => { navigate("/claim-guide"); window.scrollTo({ top: 0 }); }} page={sidebarPage} />}
+        {showSides && <SidePanelRight onGoToGuide={() => {
+          navigate(sidebarPage === "train" ? "/letter-generator" : "/claim-guide");
+          window.scrollTo({ top: 0 });
+        }} page={sidebarPage} />}
       </div>
 
       {kitOpen && (

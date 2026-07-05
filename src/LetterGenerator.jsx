@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plane, Luggage, Copy, Check, FileDown, ArrowLeft, Sparkles } from "lucide-react";
+import { Plane, Luggage, TrainFront, Copy, Check, FileDown, ArrowLeft, Sparkles } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
 
 const NAVY = "#0B2545";
@@ -68,6 +68,42 @@ ${f.name || "[Your name]"}
 ${f.email || "[Your email]"}`;
 }
 
+function suggestTrainAmount(delayMins, ticketPrice) {
+  const mins = Number(delayMins) || 0;
+  const price = Number(ticketPrice) || 0;
+  if (!mins || mins < 60) return "[no fixed compensation for delays under 60 minutes — check the operator's Conditions of Carriage]";
+  const pct = mins < 120 ? 25 : 50;
+  if (!price) return `${pct}% of my ticket price`;
+  return `${pct}% of my ticket price (EUR ${(price * pct / 100).toFixed(2)})`;
+}
+
+function buildTrainLetter(f) {
+  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const passengerList = (f.passengers && f.passengers.length ? f.passengers : [{ name: "", ticketNo: "" }])
+    .map((p, i) => `${p.name || `[Passenger ${i + 1} name]`} (ticket ${p.ticketNo || "[ticket number]"})`)
+    .join("; ");
+  const amount = suggestTrainAmount(f.delayMins, f.ticketPrice);
+  return `${today}
+
+Dear ${f.operator || "[Train operator]"} Customer Relations,
+
+Re: Compensation claim under Regulation (EU) 2021/782 — journey on ${f.journeyDate || "[date]"} from ${f.from || "[departure station]"} to ${f.to || "[arrival station]"}
+
+I am writing regarding the above journey on ${f.journeyDate || "[date]"}, on which the following passenger(s) and ticket(s) were affected: ${passengerList}.
+
+The journey was ${f.issue || "delayed/cancelled"}${f.delayMins ? `, resulting in a delay to my final arrival of approximately ${f.delayMins} minutes` : ""}. The ticket price paid was ${f.ticketPrice ? `EUR ${f.ticketPrice}` : "[ticket price]"}. Under Regulation (EU) 2021/782, I am entitled to claim ${amount}.
+
+Please arrange payment to me within 14 days of the date of this letter. If I do not receive a satisfactory response, I will escalate this matter to the relevant national enforcement body and, if necessary, pursue it through the courts.
+
+I have attached copies of my ticket(s) and any evidence of the delay as supporting documents.
+
+I am submitting this claim within the 3-month deadline required under Regulation (EU) 2021/782 for rail passenger rights, and I look forward to your prompt reply.
+
+Yours faithfully,
+${f.name || "[Your name]"}
+${f.email || "[Your email]"}`;
+}
+
 function Field({ label, children }) {
   return (
     <label className="block">
@@ -89,7 +125,21 @@ export default function LetterGenerator({ onBack }) {
   const [copied, setCopied] = useState(false);
   const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
 
-  const letter = kind === "flight" ? buildFlightLetter(f) : kind === "baggage" ? buildBaggageLetter(f) : "";
+  const updatePassenger = (i, key, value) => {
+    setF((p) => {
+      const passengers = p.passengers && p.passengers.length ? [...p.passengers] : [{ name: "", ticketNo: "" }];
+      passengers[i] = { ...passengers[i], [key]: value };
+      return { ...p, passengers };
+    });
+  };
+  const addPassenger = () => {
+    setF((p) => ({ ...p, passengers: [...(p.passengers && p.passengers.length ? p.passengers : [{ name: "", ticketNo: "" }]), { name: "", ticketNo: "" }] }));
+  };
+  const removePassenger = (i) => {
+    setF((p) => ({ ...p, passengers: (p.passengers || []).filter((_, idx) => idx !== i) }));
+  };
+
+  const letter = kind === "flight" ? buildFlightLetter(f) : kind === "baggage" ? buildBaggageLetter(f) : kind === "train" ? buildTrainLetter(f) : "";
 
   const copy = async () => {
     try {
@@ -157,6 +207,14 @@ export default function LetterGenerator({ onBack }) {
                 <div className="text-[12px] text-slate-500">Montreal Convention claim letter</div>
               </div>
             </button>
+            <button onClick={() => setKind("train")}
+              className="w-full flex items-center gap-3 bg-white rounded-2xl shadow-sm p-4 text-left hover:ring-2 hover:ring-orange-200">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center"><TrainFront className="w-5 h-5 text-orange-600" /></div>
+              <div>
+                <div className="font-semibold text-slate-800">Train delayed or cancelled</div>
+                <div className="text-[12px] text-slate-500">Regulation (EU) 2021/782 claim letter</div>
+              </div>
+            </button>
           </div>
         )}
 
@@ -169,14 +227,26 @@ export default function LetterGenerator({ onBack }) {
             <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
               <Field label="Your full name"><input className={inputCls} value={f.name || ""} onChange={set("name")} placeholder="Jane Smith" /></Field>
               <Field label="Your email"><input className={inputCls} value={f.email || ""} onChange={set("email")} placeholder="jane@email.com" /></Field>
-              <Field label="Airline"><input className={inputCls} value={f.airline || ""} onChange={set("airline")} placeholder="Emirates" /></Field>
-              <Field label="Flight number"><input className={inputCls} value={f.flightNo || ""} onChange={set("flightNo")} placeholder="EK202" /></Field>
-              <Field label="Flight date"><input className={inputCls} value={f.flightDate || ""} onChange={set("flightDate")} placeholder="14 June 2026" /></Field>
+              {kind !== "train" && (
+                <>
+                  <Field label="Airline"><input className={inputCls} value={f.airline || ""} onChange={set("airline")} placeholder="Emirates" /></Field>
+                  <Field label="Flight number"><input className={inputCls} value={f.flightNo || ""} onChange={set("flightNo")} placeholder="EK202" /></Field>
+                  <Field label="Flight date"><input className={inputCls} value={f.flightDate || ""} onChange={set("flightDate")} placeholder="14 June 2026" /></Field>
+                </>
+              )}
+              {kind === "train" && (
+                <>
+                  <Field label="Train operator"><input className={inputCls} value={f.operator || ""} onChange={set("operator")} placeholder="Deutsche Bahn" /></Field>
+                  <Field label="Journey date"><input className={inputCls} value={f.journeyDate || ""} onChange={set("journeyDate")} placeholder="14 June 2026" /></Field>
+                </>
+              )}
               <div className="grid grid-cols-2 gap-3">
-                <Field label="From"><input className={inputCls} value={f.from || ""} onChange={set("from")} placeholder="Dubai (DXB)" /></Field>
-                <Field label="To"><input className={inputCls} value={f.to || ""} onChange={set("to")} placeholder="London (LHR)" /></Field>
+                <Field label="From"><input className={inputCls} value={f.from || ""} onChange={set("from")} placeholder={kind === "train" ? "Berlin Hbf" : "Dubai (DXB)"} /></Field>
+                <Field label="To"><input className={inputCls} value={f.to || ""} onChange={set("to")} placeholder={kind === "train" ? "Munich Hbf" : "London (LHR)"} /></Field>
               </div>
-              <Field label="Booking reference"><input className={inputCls} value={f.bookingRef || ""} onChange={set("bookingRef")} placeholder="ABC123" /></Field>
+              {kind !== "train" && (
+                <Field label="Booking reference"><input className={inputCls} value={f.bookingRef || ""} onChange={set("bookingRef")} placeholder="ABC123" /></Field>
+              )}
 
               {kind === "flight" && (
                 <>
@@ -208,6 +278,42 @@ export default function LetterGenerator({ onBack }) {
                   </Field>
                   <Field label="PIR number (from the airport report)"><input className={inputCls} value={f.pir || ""} onChange={set("pir")} placeholder="DXBEK12345" /></Field>
                   <Field label="Amount you're claiming (optional)"><input className={inputCls} value={f.amount || ""} onChange={set("amount")} placeholder="EUR 320" /></Field>
+                </>
+              )}
+
+              {kind === "train" && (
+                <>
+                  <Field label="What happened?">
+                    <select className={inputCls} value={f.issue || ""} onChange={set("issue")}>
+                      <option value="">Select…</option>
+                      <option value="delayed">Delayed</option>
+                      <option value="cancelled">Cancelled</option>
+                      <option value="missed a connecting service due to a delay">Missed connection</option>
+                    </select>
+                  </Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Ticket price paid"><input className={inputCls} value={f.ticketPrice || ""} onChange={set("ticketPrice")} placeholder="89.50" /></Field>
+                    <Field label="Delay to final arrival (minutes)"><input className={inputCls} value={f.delayMins || ""} onChange={set("delayMins")} placeholder="90" /></Field>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Tip: 60–119 minutes = 25% of ticket price, 120+ minutes = 50%. Under 60 minutes isn't eligible for cash compensation.</p>
+
+                  <div>
+                    <div className="text-[12px] font-semibold text-slate-600 mb-1.5">Passengers &amp; ticket numbers</div>
+                    <div className="space-y-2">
+                      {(f.passengers && f.passengers.length ? f.passengers : [{ name: "", ticketNo: "" }]).map((p, i) => (
+                        <div key={i} className="grid grid-cols-2 gap-2">
+                          <input className={inputCls} value={p.name} onChange={(e) => updatePassenger(i, "name", e.target.value)} placeholder={`Passenger ${i + 1} name`} />
+                          <div className="flex gap-2">
+                            <input className={inputCls} value={p.ticketNo} onChange={(e) => updatePassenger(i, "ticketNo", e.target.value)} placeholder="Ticket number" />
+                            {(f.passengers?.length || 1) > 1 && (
+                              <button type="button" onClick={() => removePassenger(i)} className="text-slate-400 px-2">&times;</button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button type="button" onClick={addPassenger} className="text-[12px] text-blue-600 font-semibold mt-2">+ Add another passenger</button>
+                  </div>
                 </>
               )}
             </div>
