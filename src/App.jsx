@@ -292,6 +292,7 @@ export default function App() {
           <Logo size={24} />
           <span className="font-bold text-sm text-[#0B2545]">Claim<span className="text-teal-500">YourTrip</span></span>
         </div>
+        <p className="text-xs text-slate-400 mb-1">Questions? Email <a href="mailto:support@claimyourtrip.com" className="text-slate-500 hover:text-blue-600">support@claimyourtrip.com</a></p>
         <p className="text-xs text-slate-400">Information service &middot; Not affiliated with any airline &middot; Not legal advice &middot; &copy; 2026</p>
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
           <Link to="/privacy" className="text-slate-500 hover:text-blue-600">Privacy Policy</Link>
