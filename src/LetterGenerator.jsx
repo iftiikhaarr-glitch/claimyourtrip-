@@ -3,6 +3,11 @@ import { Plane, Luggage, TrainFront, Copy, Check, FileDown, ArrowLeft, Sparkles 
 import { useSeo } from "./hooks/useSeo.js";
 
 const NAVY = "#0B2545";
+const CURRENCIES = ["EUR", "GBP", "CHF", "DKK", "SEK", "NOK", "PLN", "CZK", "HUF", "Other"];
+
+function formatTrainCurrency(value, currency) {
+  return currency === "Other" ? `${value} (your currency)` : `${currency || "EUR"} ${value}`;
+}
 
 function suggestAmount(distanceKm) {
   if (!distanceKm) return "[EUR 250 / 400 / 600 depending on distance]";
@@ -68,13 +73,13 @@ ${f.name || "[Your name]"}
 ${f.email || "[Your email]"}`;
 }
 
-function suggestTrainAmount(delayMins, ticketPrice) {
+function suggestTrainAmount(delayMins, ticketPrice, currency) {
   const mins = Number(delayMins) || 0;
   const price = Number(ticketPrice) || 0;
   if (!mins || mins < 60) return "[no fixed compensation for delays under 60 minutes — check the operator's Conditions of Carriage]";
   const pct = mins < 120 ? 25 : 50;
   if (!price) return `${pct}% of my ticket price`;
-  return `${pct}% of my ticket price (EUR ${(price * pct / 100).toFixed(2)})`;
+  return `${pct}% of my ticket price (${formatTrainCurrency((price * pct / 100).toFixed(2), currency)})`;
 }
 
 function buildTrainLetter(f) {
@@ -82,7 +87,7 @@ function buildTrainLetter(f) {
   const passengerList = (f.passengers && f.passengers.length ? f.passengers : [{ name: "", ticketNo: "" }])
     .map((p, i) => `${p.name || `[Passenger ${i + 1} name]`} (ticket ${p.ticketNo || "[ticket number]"})`)
     .join("; ");
-  const amount = suggestTrainAmount(f.delayMins, f.ticketPrice);
+  const amount = suggestTrainAmount(f.delayMins, f.ticketPrice, f.currency);
   return `${today}
 
 Dear ${f.operator || "[Train operator]"} Customer Relations,
@@ -91,7 +96,7 @@ Re: Compensation claim under Regulation (EU) 2021/782 — journey on ${f.journey
 
 I am writing regarding the above journey on ${f.journeyDate || "[date]"}, on which the following passenger(s) and ticket(s) were affected: ${passengerList}.
 
-The journey was ${f.issue || "delayed/cancelled"}${f.delayMins ? `, resulting in a delay to my final arrival of approximately ${f.delayMins} minutes` : ""}. The ticket price paid was ${f.ticketPrice ? `EUR ${f.ticketPrice}` : "[ticket price]"}. Under Regulation (EU) 2021/782, I am entitled to claim ${amount}.
+The journey was ${f.issue || "delayed/cancelled"}${f.delayMins ? `, resulting in a delay to my final arrival of approximately ${f.delayMins} minutes` : ""}. The ticket price paid was ${f.ticketPrice ? formatTrainCurrency(f.ticketPrice, f.currency) : "[ticket price]"}. Under Regulation (EU) 2021/782, I am entitled to claim ${amount}.
 
 Please arrange payment to me within 14 days of the date of this letter. If I do not receive a satisfactory response, I will escalate this matter to the relevant national enforcement body and, if necessary, pursue it through the courts.
 
@@ -293,8 +298,13 @@ export default function LetterGenerator({ onBack }) {
                   </Field>
                   <div className="grid grid-cols-2 gap-3">
                     <Field label="Ticket price paid"><input className={inputCls} value={f.ticketPrice || ""} onChange={set("ticketPrice")} placeholder="89.50" /></Field>
-                    <Field label="Delay to final arrival (minutes)"><input className={inputCls} value={f.delayMins || ""} onChange={set("delayMins")} placeholder="90" /></Field>
+                    <Field label="Ticket currency">
+                      <select className={inputCls} value={f.currency || "EUR"} onChange={set("currency")}>
+                        {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </Field>
                   </div>
+                  <Field label="Delay to final arrival (minutes)"><input className={inputCls} value={f.delayMins || ""} onChange={set("delayMins")} placeholder="90" /></Field>
                   <p className="text-[11px] text-slate-400">Tip: 60–119 minutes = 25% of ticket price, 120+ minutes = 50%. Under 60 minutes isn't eligible for cash compensation.</p>
 
                   <div>

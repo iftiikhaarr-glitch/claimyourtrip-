@@ -5,13 +5,19 @@ import {
 } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
 
-function assessTrain({ type, delayMins, ticketPrice, journeyType }) {
+const CURRENCIES = ["EUR", "GBP", "CHF", "DKK", "SEK", "NOK", "PLN", "CZK", "HUF", "Other"];
+
+function formatAmount(amount, currency) {
+  return currency === "Other" ? `${amount.toFixed(2)} (your currency)` : `${currency} ${amount.toFixed(2)}`;
+}
+
+function assessTrain({ type, delayMins, ticketPrice, journeyType, currency }) {
   const reasons = [];
   const deadlineNote = "You must submit your complaint to the operator within 3 months of the incident — this is far shorter than flight compensation deadlines (usually 2–6 years), so don't wait.";
 
   if (journeyType === "non_eu") {
     reasons.push("Regulation (EU) 2021/782 only covers domestic and international rail journeys within the EU. This journey falls outside its scope, so this fixed compensation table doesn't apply here — check the operator's own Conditions of Carriage or your local consumer rail rules instead.");
-    return { eligible: false, amount: 0, reasons, covered: false };
+    return { eligible: false, amount: 0, reasons, covered: false, currency };
   }
 
   if (journeyType === "domestic_exempt") {
@@ -23,7 +29,7 @@ function assessTrain({ type, delayMins, ticketPrice, journeyType }) {
 
   if (type === "baggage") {
     reasons.push("Unlike flights, EU rail regulation has no fixed baggage compensation table. Claims for lost, damaged, or delayed luggage depend entirely on the operator's own Conditions of Carriage.");
-    return { noFixedAmount: true, reasons, covered: true, deadlineNote };
+    return { noFixedAmount: true, reasons, covered: true, deadlineNote, currency };
   }
 
   const mins = Number(delayMins) || 0;
@@ -31,13 +37,13 @@ function assessTrain({ type, delayMins, ticketPrice, journeyType }) {
 
   if (mins < 60) {
     reasons.push(`${causeLabel} ${mins} minutes, under the 60-minute threshold for cash compensation under Regulation (EU) 2021/782. Some operators still offer assistance or rebooking under their own Conditions of Carriage.`);
-    return { eligible: false, careOnly: true, amount: 0, reasons, covered: true, deadlineNote };
+    return { eligible: false, careOnly: true, amount: 0, reasons, covered: true, deadlineNote, currency };
   }
 
   const pct = mins < 120 ? 25 : 50;
   const amount = Math.round(price * (pct / 100) * 100) / 100;
-  reasons.push(`${causeLabel} ${mins} minutes, ${mins < 120 ? "in the 60–119 minute band" : "120 minutes or more"} — you may be entitled to claim ${pct}% of your ticket price.`);
-  return { eligible: true, amount, pct, reasons, covered: true, deadlineNote };
+  reasons.push(`${causeLabel} ${mins} minutes, ${mins < 120 ? "in the 60–119 minute band" : "120 minutes or more"} — you may be entitled to claim ${pct}% of your ticket price${price ? ` (${formatAmount(amount, currency)})` : ""}.`);
+  return { eligible: true, amount, pct, reasons, covered: true, deadlineNote, currency };
 }
 
 const Field = ({ label, children }) => (
@@ -68,12 +74,13 @@ export default function TrainClaimChecker({ onGoToLetter }) {
   const [type, setType] = useState("");
   const [delayMins, setDelayMins] = useState("");
   const [ticketPrice, setTicketPrice] = useState("");
+  const [currency, setCurrency] = useState("EUR");
   const [journeyType, setJourneyType] = useState("");
 
   const result = useMemo(() => {
     if (step !== 3) return null;
-    return assessTrain({ type, delayMins, ticketPrice, journeyType });
-  }, [step, type, delayMins, ticketPrice, journeyType]);
+    return assessTrain({ type, delayMins, ticketPrice, journeyType, currency });
+  }, [step, type, delayMins, ticketPrice, journeyType, currency]);
 
   const canNext =
     step === 0 ? !!type
@@ -85,7 +92,7 @@ export default function TrainClaimChecker({ onGoToLetter }) {
     setStep(step + 1);
   };
   const back = () => setStep(Math.max(0, step - (step === 3 && type === "baggage" ? 3 : 1)));
-  const restart = () => { setStep(0); setType(""); setDelayMins(""); setTicketPrice(""); setJourneyType(""); };
+  const restart = () => { setStep(0); setType(""); setDelayMins(""); setTicketPrice(""); setCurrency("EUR"); setJourneyType(""); };
 
   const delayLabel = type === "cancel"
     ? "How many minutes late was your final arrival (via the replacement journey)?"
@@ -158,10 +165,16 @@ export default function TrainClaimChecker({ onGoToLetter }) {
         {step === 1 && (
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
             <Field label="Ticket price paid">
-              <input type="number" min="0" step="0.01" value={ticketPrice}
-                onChange={(e) => setTicketPrice(e.target.value)}
-                placeholder="e.g. 89.50"
-                className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-3 text-[14px] font-medium text-slate-800" />
+              <div className="flex gap-2">
+                <input type="number" min="0" step="0.01" value={ticketPrice}
+                  onChange={(e) => setTicketPrice(e.target.value)}
+                  placeholder="e.g. 89.50"
+                  className="flex-1 min-w-0 rounded-xl border-2 border-slate-200 bg-white px-3 py-3 text-[14px] font-medium text-slate-800" />
+                <select value={currency} onChange={(e) => setCurrency(e.target.value)}
+                  className="rounded-xl border-2 border-slate-200 bg-white px-3 py-3 text-[14px] font-medium text-slate-800">
+                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
             </Field>
             <Field label={delayLabel}>
               <input type="number" min="0" step="1" value={delayMins}
@@ -192,7 +205,7 @@ export default function TrainClaimChecker({ onGoToLetter }) {
                   <>
                     <div className="text-[12px] uppercase tracking-widest opacity-80">You may be entitled to claim</div>
                     <div className="font-mono text-5xl font-bold mt-1">{result.pct}%</div>
-                    <div className="text-[13px] opacity-90 mt-1">of your ticket price{result.amount ? ` — about EUR ${result.amount.toFixed(2)}` : ""}</div>
+                    <div className="text-[13px] opacity-90 mt-1">of your ticket price{result.amount ? ` — about ${formatAmount(result.amount, result.currency)}` : ""}</div>
                   </>
                 ) : result.noFixedAmount ? (
                   <>

@@ -236,7 +236,7 @@ export default function App() {
   const showSides = ["/", "/baggage-claim-helper", "/claim-guide", "/letter-generator", "/train-delay-compensation"].includes(location.pathname);
 
   const navCls = ({ isActive }) =>
-    `px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isActive ? "bg-teal-400 text-[#0B2545]" : "text-blue-100 hover:bg-white/10"}`;
+    `px-3 py-1.5 rounded-lg text-sm font-semibold transition whitespace-nowrap shrink-0 ${isActive ? "bg-teal-400 text-[#0B2545]" : "text-blue-100 hover:bg-white/10"}`;
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
@@ -246,7 +246,7 @@ export default function App() {
             <Logo size={32} />
             <span className="font-bold tracking-tight text-base text-white">Claim<span className="text-teal-300">YourTrip</span></span>
           </Link>
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden -mx-2 px-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             <NavLink to="/" end className={navCls}>Flights</NavLink>
             <NavLink to="/baggage-claim-helper" className={navCls}>Baggage</NavLink>
             <NavLink to="/train-delay-compensation" className={navCls}>Train</NavLink>
