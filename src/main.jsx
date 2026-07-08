@@ -6,9 +6,11 @@ import CookieBanner from "./CookieBanner.jsx";
 import "./index.css";
 import { Analytics } from "@vercel/analytics/react";
 import { useCookieConsent } from "./hooks/useCookieConsent.js";
+import { useOrganizationSchema } from "./hooks/useSeoSchema.js";
 
 function Root() {
   const { consent, isLoaded } = useCookieConsent();
+  useOrganizationSchema();
 
   return (
     <>

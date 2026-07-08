@@ -4,6 +4,7 @@ import {
   AlertTriangle, Clock, ShieldCheck, Lock, Ban, Scale
 } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
+import { useSeoSchema } from "./hooks/useSeoSchema.js";
 
 const CURRENCIES = ["EUR", "GBP", "CHF", "DKK", "SEK", "NOK", "PLN", "CZK", "HUF", "Other"];
 
@@ -70,6 +71,14 @@ export default function TrainClaimChecker({ onGoToLetter }) {
     "Train Delay & Cancellation Compensation Checker | ClaimYourTrip",
     "Check if you're owed 25% or 50% of your ticket price for a delayed or cancelled EU train journey under Regulation (EU) 2021/782. Free, instant check — claim directly from the operator."
   );
+  useSeoSchema({
+    breadcrumb: [["Home", "/"], ["Train Delay & Cancellation Checker", "/train-delay-compensation"]],
+    faqs: [
+      ["Does EU train compensation cover my journey?", "Regulation (EU) 2021/782 covers domestic and international rail journeys within the EU. Some Member States exempt certain domestic, regional, or historical services from parts of the regulation — check the operator's Conditions of Carriage to confirm."],
+      ["How much can I claim for a delayed train?", "You may be entitled to 25% of your ticket price for a 60–119 minute delay, or 50% for a delay of 120 minutes or more."],
+      ["How long do I have to submit a train delay claim?", "Just 3 months from the date of the journey — far shorter than the 2–6 year deadline typical for flight compensation claims, so don't wait."],
+    ],
+  });
   const [step, setStep] = useState(0);
   const [type, setType] = useState("");
   const [delayMins, setDelayMins] = useState("");

@@ -4,6 +4,7 @@ import {
   Calendar, FileText, Receipt, ArrowRight, ShieldCheck, ExternalLink
 } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
+import { useSeoSchema } from "./hooks/useSeoSchema.js";
 
 const NAVY = "#0B2545";
 
@@ -138,6 +139,14 @@ export default function BaggageHelper({ onOpenKit }) {
     "Lost, Delayed or Damaged Baggage Claim Help | ClaimYourTrip",
     "Claim compensation for delayed, lost, or damaged luggage under the Montreal Convention. Step-by-step help, free letter templates, no agency fees."
   );
+  useSeoSchema({
+    breadcrumb: [["Home", "/"], ["Baggage Claim Helper", "/baggage-claim-helper"]],
+    faqs: [
+      ["What's the deadline to claim for delayed, damaged, or lost baggage?", "7 days for damaged baggage, 21 days for delayed baggage, under the Montreal Convention. After 21 days, a delayed bag is treated as lost and you can claim its full value."],
+      ["How much can I claim for lost or damaged baggage?", "Up to 1,519 SDR (about EUR 1,900 / $2,175) per passenger under the Montreal Convention, covering the value of your bag and its contents."],
+      ["Do I need a PIR (Property Irregularity Report) to claim?", "Yes. The PIR filed at the airline's baggage desk is the key evidence for any delayed, damaged, or lost baggage claim — get the reference number before you leave the airport."],
+    ],
+  });
   const [sit, setSit] = useState(null);
   const data = sit ? SITUATIONS[sit] : null;
   const c = data ? COLOR[data.color] : null;

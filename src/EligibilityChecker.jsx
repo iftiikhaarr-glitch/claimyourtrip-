@@ -5,6 +5,7 @@ import {
   Scale, Lock, Ban
 } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
+import { useSeoSchema } from "./hooks/useSeoSchema.js";
 
 const AIRPORTS = [
   ["LHR","London Heathrow",51.47,-0.45,"UK"],["LGW","London Gatwick",51.15,-0.18,"UK"],["MAN","Manchester",53.35,-2.27,"UK"],
@@ -147,6 +148,14 @@ export default function EligibilityChecker({ onGoToGuide }) {
     "Flight Delay & Cancellation Compensation Checker | ClaimYourTrip",
     "Check if you may be owed up to €600 for a delayed or cancelled flight. Free, instant eligibility check — claim directly from the airline and keep 100%."
   );
+  useSeoSchema({
+    breadcrumb: [["Home", "/"], ["Flight Delay & Cancellation Checker", "/"]],
+    faqs: [
+      ["How much compensation can I get for a delayed or cancelled flight?", "Under EU261/UK261, you may be entitled to EUR 250–600 (or the GBP equivalent) per passenger depending on flight distance, if the delay is 3+ hours or the airline cancelled with under 14 days' notice — and the cause wasn't extraordinary circumstances like severe weather or air traffic control restrictions."],
+      ["Do I need to use a claims company?", "No. You can write directly to the airline yourself using a free letter template and keep 100% of any compensation, instead of paying a claims firm's typical 20–35% cut."],
+      ["How long do I have to claim flight compensation?", "Usually 2 to 6 years, depending on the country — but it's best to claim as soon as possible while your evidence (boarding pass, booking confirmation) is easy to find."],
+    ],
+  });
   const [step, setStep] = useState(0);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
