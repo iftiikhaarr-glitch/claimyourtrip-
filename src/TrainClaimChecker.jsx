@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import {
   TrainFront, ArrowRight, ArrowLeft, Euro, CheckCircle2, XCircle,
-  AlertTriangle, Clock, ShieldCheck, Lock, Ban, Scale
+  AlertTriangle, Clock, ShieldCheck, Lock, Ban, Scale, ExternalLink
 } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
 import { useSeoSchema } from "./hooks/useSeoSchema.js";
@@ -260,6 +260,19 @@ export default function TrainClaimChecker({ onGoToLetter }) {
               className="w-full bg-emerald-600 text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition">
               <Euro className="w-5 h-5" /> Get my claim letter
             </button>
+
+            <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recommended</div>
+                <div className="text-[11px] font-semibold text-slate-500">AD</div>
+              </div>
+              <div className="text-[13px] font-semibold text-slate-800">Planning your next train trip?</div>
+              <p className="text-[11px] text-slate-500 leading-snug mt-1 mb-3">Browse and book trains, buses, and tours across Europe in one place — compare prices and get instant bookings.</p>
+              <a href="https://klook.tpo.mx/vxzroVfy" target="_blank" rel="sponsored noopener noreferrer"
+                className="w-full bg-[#0B2545] text-white rounded-xl py-3 font-semibold text-[13px] flex items-center justify-center gap-1.5">
+                Search trains <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
 
             <div className="flex items-start gap-2 px-2">
               <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
