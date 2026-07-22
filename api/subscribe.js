@@ -1,11 +1,34 @@
+const ALLOWED_ORIGINS = ["https://claimyourtrip.com", "https://www.claimyourtrip.com"];
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true; // some legitimate same-origin requests omit this header
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  try {
+    const { hostname } = new URL(origin);
+    return hostname.endsWith(".vercel.app") || hostname === "localhost";
+  } catch {
+    return false;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { email } = req.body;
+  if (!isAllowedOrigin(req.headers.origin)) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const email = req.body?.email;
+  const honeypot = req.body?.company; // hidden field — real users never fill this in
+
+  if (honeypot) {
+    // Pretend success so bots don't learn the trap failed
+    return res.status(200).json({ success: true });
+  }
+
+  if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: "Please enter a valid email address." });
   }
 
@@ -23,10 +46,13 @@ export default async function handler(req, res) {
       }),
     });
 
-    if (!response.ok && response.status !== 400) {
-      const errText = await response.text();
-      console.error("Brevo error:", errText);
-      return res.status(500).json({ error: "Something went wrong. Please try again." });
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      const isDuplicateContact = response.status === 400 && errBody.code === "duplicate_parameter";
+      if (!isDuplicateContact) {
+        console.error("Brevo error:", errBody);
+        return res.status(500).json({ error: "Something went wrong. Please try again." });
+      }
     }
 
     return res.status(200).json({ success: true });

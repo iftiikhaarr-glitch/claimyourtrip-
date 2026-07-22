@@ -164,6 +164,7 @@ function SidePanelRight({ onGoToGuide, page }) {
 
 function KitModalContent() {
   const [email, setEmail] = useState("");
+  const [company, setCompany] = useState(""); // honeypot — hidden from real users
   const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -175,7 +176,7 @@ function KitModalContent() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, company }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -212,6 +213,9 @@ function KitModalContent() {
         Want to know the moment it's ready? Leave your email and we'll also send you our free starter guide right now.
       </p>
       <form onSubmit={handleSubmit} className="mt-4">
+        <input type="text" name="company" value={company} onChange={(e) => setCompany(e.target.value)}
+          tabIndex={-1} autoComplete="off" aria-hidden="true"
+          style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }} />
         <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
           className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-teal-400 outline-none" />
