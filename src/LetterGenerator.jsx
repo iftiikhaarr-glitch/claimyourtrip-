@@ -15,22 +15,36 @@ function formatTrainCurrency(value, currency) {
   return currency === "Other" ? `${value} (your currency)` : `${currency || "EUR"} ${value}`;
 }
 
-function suggestFlightAmount(distanceKm, jurisdiction, delayHrs) {
+function suggestFlightAmount(distanceKm, jurisdiction, issue, delayHrsRaw) {
   if (!jurisdiction) return "[select EU261 or UK261 above to calculate your amount]";
   const currency = jurisdiction === "UK" ? "GBP" : "EUR";
   const b = FLIGHT_BANDS[jurisdiction];
-  if (!distanceKm) return `[${currency} ${b.short} / ${b.medium} / ${b.long} depending on distance]`;
+
   const d = Number(distanceKm);
-  if (d <= 1500) return `${currency} ${b.short}`;
-  if (d <= 3500) return `${currency} ${b.medium}`;
-  if (typeof delayHrs === "number" && delayHrs >= 3 && delayHrs < 4) return `${currency} ${b.longReduced}`;
-  return `${currency} ${b.long}`;
+  const hasValidDistance = distanceKm !== undefined && distanceKm !== "" && Number.isFinite(d) && d > 0;
+  if (!hasValidDistance) return `[${currency} ${b.short} / ${b.medium} / ${b.long} depending on distance]`;
+
+  if (!issue) return "[select what happened above to calculate your amount]";
+
+  const isLongHaul = d > 3500;
+  const band = d <= 1500 ? b.short : d <= 3500 ? b.medium : b.long;
+
+  if (issue === "delayed") {
+    const delayHrs = Number(delayHrsRaw);
+    const hasValidDelay = delayHrsRaw !== undefined && delayHrsRaw !== "" && Number.isFinite(delayHrs) && delayHrs >= 0;
+    if (!hasValidDelay) return "[enter the arrival delay in hours above to calculate your amount]";
+    if (delayHrs < 3) return "[delay under 3 hours — verify eligibility; cash compensation typically requires a 3+ hour arrival delay]";
+    if (isLongHaul && delayHrs < 4) return `${currency} ${b.longReduced}`;
+    return `${currency} ${band}`;
+  }
+
+  // Cancelled / overbooked (denied boarding): full applicable band, regardless
+  // of any leftover delayHrs value from a previously selected "delayed" state.
+  return `${currency} ${band}`;
 }
 
 function buildFlightLetter(f) {
-  const amount = f.suggestedAmount && f.suggestedCurrency
-    ? `${f.suggestedCurrency} ${f.suggestedAmount}`
-    : suggestFlightAmount(f.distance, f.jurisdiction, Number(f.delayHrs));
+  const amount = suggestFlightAmount(f.distance, f.jurisdiction, f.issue, f.delayHrs);
   const lawName = f.jurisdiction === "UK"
     ? "UK Regulation (EC) No 261/2004, commonly known as UK261"
     : f.jurisdiction === "EU"
