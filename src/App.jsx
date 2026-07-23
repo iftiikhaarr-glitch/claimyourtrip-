@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import {
-  X, Scale, Lock, Ban, ShieldCheck, Euro, Clock, Percent,
+  X, Menu, Scale, Lock, Ban, ShieldCheck, Euro, Clock, Percent,
   FileText, Send, Building2
 } from "lucide-react";
 import Logo from "./Logo.jsx";
@@ -231,6 +231,7 @@ function KitModalContent() {
 
 export default function App() {
   const [kitOpen, setKitOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -242,6 +243,15 @@ export default function App() {
   const navCls = ({ isActive }) =>
     `px-3 py-1.5 rounded-lg text-sm font-semibold transition whitespace-nowrap shrink-0 ${isActive ? "bg-teal-400 text-[#0B2545]" : "text-blue-100 hover:bg-white/10"}`;
 
+  useEffect(() => { setMobileMenuOpen(false); }, [location.pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (e) => { if (e.key === "Escape") setMobileMenuOpen(false); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileMenuOpen]);
+
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
       <div className="bg-[#0B2545] sticky top-0 z-10 border-b border-white/10">
@@ -250,14 +260,34 @@ export default function App() {
             <Logo size={32} />
             <span className="font-bold tracking-tight text-base text-white">Claim<span className="text-teal-300">YourTrip</span></span>
           </Link>
-          <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden -mx-2 px-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+
+          <div className="hidden lg:flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden -mx-2 px-2" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             <NavLink to="/" end className={navCls}>Flights</NavLink>
             <NavLink to="/baggage-claim-helper" className={navCls}>Baggage</NavLink>
             <NavLink to="/train-delay-compensation" className={navCls}>Train</NavLink>
             <NavLink to="/letter-generator" className={navCls}>Letter</NavLink>
             <NavLink to="/claim-guide" className={navCls}>Guide</NavLink>
           </div>
+
+          <button type="button"
+            className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-100 hover:bg-white/10"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-menu"
+            onClick={() => setMobileMenuOpen((v) => !v)}>
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            Menu
+          </button>
         </div>
+
+        {mobileMenuOpen && (
+          <nav id="mobile-nav-menu" aria-label="Site navigation" className="lg:hidden border-t border-white/10 px-4 py-2 flex flex-col gap-1">
+            <NavLink to="/" end className={navCls} onClick={() => setMobileMenuOpen(false)}>Flights</NavLink>
+            <NavLink to="/baggage-claim-helper" className={navCls} onClick={() => setMobileMenuOpen(false)}>Baggage</NavLink>
+            <NavLink to="/train-delay-compensation" className={navCls} onClick={() => setMobileMenuOpen(false)}>Train</NavLink>
+            <NavLink to="/letter-generator" className={navCls} onClick={() => setMobileMenuOpen(false)}>Letter</NavLink>
+            <NavLink to="/claim-guide" className={navCls} onClick={() => setMobileMenuOpen(false)}>Guide</NavLink>
+          </nav>
+        )}
       </div>
 
       <div className="max-w-6xl mx-auto lg:flex lg:gap-6 lg:px-4 lg:items-start">
@@ -265,7 +295,10 @@ export default function App() {
 
         <main className="flex-1 min-w-0">
           <Routes>
-            <Route path="/" element={<EligibilityChecker onGoToGuide={() => { navigate("/claim-guide"); window.scrollTo({ top: 0 }); }} />} />
+            <Route path="/" element={<EligibilityChecker
+              onGoToGuide={() => { navigate("/claim-guide"); window.scrollTo({ top: 0 }); }}
+              onGoToLetter={(flightPrefill) => { navigate("/letter-generator", { state: { flightPrefill } }); window.scrollTo({ top: 0 }); }}
+            />} />
             <Route path="/baggage-claim-helper" element={<BaggageHelper onOpenKit={() => setKitOpen(true)} />} />
             <Route path="/train-delay-compensation" element={<TrainClaimChecker onGoToLetter={() => { navigate("/letter-generator"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/letter-generator" element={<LetterGenerator onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
@@ -296,12 +329,12 @@ export default function App() {
           <Logo size={24} />
           <span className="font-bold text-sm text-[#0B2545]">Claim<span className="text-teal-500">YourTrip</span></span>
         </div>
-        <p className="text-xs text-slate-400 mb-1">Questions? Email <a href="mailto:support@claimyourtrip.com" className="text-slate-500 hover:text-blue-600">support@claimyourtrip.com</a></p>
-        <p className="text-xs text-slate-400">Information service &middot; Not affiliated with any airline &middot; Not legal advice &middot; &copy; 2026</p>
+        <p className="text-xs text-slate-600 mb-1">Questions? Email <a href="mailto:support@claimyourtrip.com" className="text-slate-600 hover:text-blue-600">support@claimyourtrip.com</a></p>
+        <p className="text-xs text-slate-600">Information service &middot; Not affiliated with any airline or transport operator &middot; Not legal advice &middot; &copy; 2026</p>
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
-          <Link to="/privacy" className="text-slate-500 hover:text-blue-600">Privacy Policy</Link>
-          <Link to="/terms" className="text-slate-500 hover:text-blue-600">Terms &amp; Disclaimer</Link>
-          <Link to="/affiliate-disclosure" className="text-slate-500 hover:text-blue-600">Affiliate Disclosure</Link>
+          <Link to="/privacy" className="text-slate-600 hover:text-blue-600">Privacy Policy</Link>
+          <Link to="/terms" className="text-slate-600 hover:text-blue-600">Terms &amp; Disclaimer</Link>
+          <Link to="/affiliate-disclosure" className="text-slate-600 hover:text-blue-600">Affiliate Disclosure</Link>
         </div>
       </footer>
     </div>

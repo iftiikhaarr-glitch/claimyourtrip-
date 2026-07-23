@@ -46,11 +46,32 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
   const km = distanceKm(dep, arr);
   const depEU = dep[4] === "EU" || dep[4] === "UK";
   const arrEU = arr[4] === "EU" || arr[4] === "UK";
-  const covered = depEU || (arrEU && euCarrier === "yes");
   const intraEU = dep[4] !== "INT" && arr[4] !== "INT";
-
-  let base = km <= 1500 ? 250 : km <= 3500 || intraEU ? 400 : 600;
   const reasons = [];
+
+  // Determine jurisdiction. Departure-based coverage is unambiguous. Arrival-based
+  // coverage (on an EU/UK airline) is only unambiguous when arriving in the UK,
+  // since UK261 explicitly covers "a UK or EU airline". Arriving in the EU requires
+  // an EU-specific carrier, which this checker doesn't collect, so that combination
+  // is reported as indeterminate rather than guessed.
+  let jurisdiction = null;
+  if (dep[4] === "UK") jurisdiction = "UK";
+  else if (dep[4] === "EU") jurisdiction = "EU";
+  else if (arrEU && euCarrier === "yes") {
+    if (arr[4] === "UK") jurisdiction = "UK";
+    else {
+      reasons.push(`Your flight arrives in the EU on an airline you've told us is "EU or UK" based. EU261's arrival-based coverage specifically requires an EU-registered carrier — a UK-registered airline arriving in the EU doesn't qualify under EU261, though it may still be covered by other rules. Whether you're covered, and under which rule, depends on exactly which country your airline is registered in.`);
+      reasons.push(`Check the airline's registration (its Air Operator Certificate country) or ask the airline directly, then consult the relevant regulator before relying on a specific amount.`);
+      return { km, base: null, eligible: false, amount: 0, careOnly: false, indeterminateCarrier: true, reasons, covered: false, jurisdiction: null, currency: null };
+    }
+  }
+
+  const covered = jurisdiction !== null;
+  const CURRENCY = jurisdiction === "UK" ? "GBP" : "EUR";
+  const BANDS = jurisdiction === "UK"
+    ? { short: 220, medium: 350, long: 520 }
+    : { short: 250, medium: 400, long: 600 };
+  let base = km <= 1500 ? BANDS.short : km <= 3500 || intraEU ? BANDS.medium : BANDS.long;
   let amount = 0, eligible = false, careOnly = false;
 
   if (!covered) {
@@ -69,9 +90,9 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
     return { km, base, eligible, amount, careOnly, reasons, covered };
   }
   reasons.push(depEU
-    ? `Covered: your flight departs from ${dep[1]}, inside the EU/UK zone — any airline counts.`
-    : `Covered: you arrive in the EU/UK on an EU/UK airline.`);
-  reasons.push(`Flight distance about ${km.toLocaleString()} km, which sets the compensation band at EUR ${base} (GBP equivalent for UK departures).`);
+    ? `Covered: your flight departs from ${dep[1]}, inside the ${jurisdiction} zone, under ${jurisdiction === "UK" ? "UK261" : "EU261"} — any airline counts.`
+    : `Covered: you arrive in the UK on an EU/UK airline, under UK261.`);
+  reasons.push(`Flight distance about ${km.toLocaleString()} km, which sets the compensation band at ${CURRENCY} ${base} under ${jurisdiction === "UK" ? "UK261" : "EU261"}.`);
 
   const extraordinary = ["weather", "atc", "security", "medical"].includes(reason);
 
@@ -90,9 +111,9 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
         ? "Cancelled less than 7 days before departure with no extraordinary circumstances, so full compensation applies."
         : "Cancelled 7–14 days before departure, so compensation is usually owed unless the replacement flight was very close to your original times.");
       if (reason === "crew" || reason === "technical")
-        reasons.push("Technical faults and crew or staffing problems are the airline's responsibility — courts have ruled these are NOT extraordinary circumstances.");
+        reasons.push("Technical faults and crew or staffing problems are usually the airline's responsibility and are not generally considered extraordinary circumstances, although the circumstances of each disruption matter.");
       if (reason === "strike")
-        reasons.push("Strikes by the airline's own staff are generally NOT extraordinary, so you can still claim. Airport-wide or air-traffic-control strikes are treated differently.");
+        reasons.push("Strikes by the airline's own staff are usually not considered extraordinary, although the circumstances of each disruption matter. Airport-wide or air-traffic-control strikes are treated differently.");
     }
   } else if (type === "delay") {
     if (delayHrs < 3) {
@@ -105,13 +126,13 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
       eligible = true; amount = base;
       if (km > 3500 && delayHrs < 4 && !intraEU) {
         amount = base / 2;
-        reasons.push("Long-haul delay of 3–4 hours, so the airline may legally halve the compensation (about EUR 300 instead of EUR 600).");
+        reasons.push(`Long-haul delay of 3–4 hours, so the airline may legally halve the compensation (about ${CURRENCY} ${amount} instead of ${CURRENCY} ${base}).`);
       } else {
-        reasons.push(`Arrival delay of ${delayHrs}+ hours with no extraordinary circumstances, so full compensation of EUR ${base} applies.`);
+        reasons.push(`Arrival delay of ${delayHrs}+ hours with no extraordinary circumstances, so full compensation of ${CURRENCY} ${base} applies.`);
       }
     }
   }
-  return { km, base, eligible, amount, careOnly, reasons, covered };
+  return { km, base, eligible, amount, careOnly, reasons, covered, jurisdiction, currency: CURRENCY };
 }
 
 const Field = ({ label, children }) => (
@@ -133,8 +154,8 @@ const Choice = ({ options, value, onChange }) => (
   </div>
 );
 
-const AirportSelect = ({ value, onChange, exclude }) => (
-  <select value={value} onChange={(e) => onChange(e.target.value)}
+const AirportSelect = ({ id, ariaLabel, value, onChange, exclude }) => (
+  <select id={id} aria-label={ariaLabel} value={value} onChange={(e) => onChange(e.target.value)}
     className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-3 text-[14px] font-medium text-slate-800">
     <option value="">Select airport…</option>
     {AIRPORTS.filter((a) => a[0] !== exclude).map((a) => (
@@ -143,7 +164,7 @@ const AirportSelect = ({ value, onChange, exclude }) => (
   </select>
 );
 
-export default function EligibilityChecker({ onGoToGuide }) {
+export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
   useSeo(
     "Flight Delay & Cancellation Compensation Checker | ClaimYourTrip",
     "Check if you may be owed up to €600 for a delayed or cancelled flight. Free, instant eligibility check — claim directly from the airline and keep 100%."
@@ -166,6 +187,7 @@ export default function EligibilityChecker({ onGoToGuide }) {
   const [reason, setReason] = useState("");
 
   const depInfo = AIRPORTS.find((a) => a[0] === from);
+  const arrInfo = AIRPORTS.find((a) => a[0] === to);
   const needCarrierQ = depInfo && depInfo[4] === "INT";
 
   const result = useMemo(() => {
@@ -211,7 +233,7 @@ export default function EligibilityChecker({ onGoToGuide }) {
       </div>
 
       {step === 0 && (
-        <div className="bg-white border-b border-slate-200">
+        <div className="bg-white border-b border-slate-200 lg:hidden">
           <div className="px-4 py-4 grid grid-cols-2 gap-3">
             {[
               [Scale, "Grounded in law", "EU261, UK261 & Montreal"],
@@ -236,8 +258,14 @@ export default function EligibilityChecker({ onGoToGuide }) {
       <div className="px-4 mt-4 space-y-4">
         {step === 0 && (
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-            <Field label="From"><AirportSelect value={from} onChange={setFrom} exclude={to} /></Field>
-            <Field label="To"><AirportSelect value={to} onChange={setTo} exclude={from} /></Field>
+            <div>
+              <label htmlFor="from-airport" className="text-[12px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5 block">From</label>
+              <AirportSelect id="from-airport" ariaLabel="From airport" value={from} onChange={setFrom} exclude={to} />
+            </div>
+            <div>
+              <label htmlFor="to-airport" className="text-[12px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5 block">To</label>
+              <AirportSelect id="to-airport" ariaLabel="To airport" value={to} onChange={setTo} exclude={from} />
+            </div>
             {needCarrierQ && (
               <Field label="Was the airline based in the EU or UK?">
                 <Choice value={euCarrier} onChange={setEuCarrier} options={[
@@ -275,6 +303,7 @@ export default function EligibilityChecker({ onGoToGuide }) {
               <>
                 <Field label={`How late did you arrive? ${delayHrs >= 6 ? "6+ hours" : delayHrs + " hours"}`}>
                   <input type="range" min="0" max="6" step="1" value={delayHrs}
+                    aria-label="Arrival delay in hours"
                     onChange={(e) => setDelayHrs(Number(e.target.value))} className="w-full accent-blue-600" />
                   <div className="flex justify-between text-[11px] text-slate-400 font-mono">
                     <span>0h</span><span>2h</span><span>3h</span><span>5h</span><span>6h+</span>
@@ -318,12 +347,18 @@ export default function EligibilityChecker({ onGoToGuide }) {
         {step === 3 && result && (
           <>
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className={`px-5 py-6 text-white ${result.eligible ? "bg-emerald-600" : result.careOnly ? "bg-amber-500" : "bg-slate-500"}`}>
+              <div className={`px-5 py-6 text-white ${result.eligible ? "bg-emerald-600" : result.indeterminateCarrier ? "bg-amber-500" : result.careOnly ? "bg-amber-500" : "bg-slate-500"}`}>
                 {result.eligible ? (
                   <>
                     <div className="text-[12px] uppercase tracking-widest opacity-80">You may be entitled to claim</div>
-                    <div className="font-mono text-5xl font-bold mt-1">EUR {result.amount}</div>
-                    <div className="text-[13px] opacity-90 mt-1">per passenger — a family of 4 could claim EUR {result.amount * 4}</div>
+                    <div className="font-mono text-5xl font-bold mt-1">{result.currency} {result.amount}</div>
+                    <div className="text-[13px] opacity-90 mt-1">per passenger — a family of 4 could claim {result.currency} {result.amount * 4}</div>
+                  </>
+                ) : result.indeterminateCarrier ? (
+                  <>
+                    <AlertTriangle className="w-8 h-8" />
+                    <div className="font-bold text-[18px] mt-2">Coverage depends on your airline</div>
+                    <div className="text-[13px] opacity-90 mt-1">We can't confirm the exact rule without knowing your airline's registration.</div>
                   </>
                 ) : result.regional ? (
                   <>
@@ -373,10 +408,25 @@ export default function EligibilityChecker({ onGoToGuide }) {
             )}
 
             {result.eligible && (
-              <button onClick={onGoToGuide}
-                className="w-full bg-emerald-600 text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition">
-                <Euro className="w-5 h-5" /> Show me how to claim it myself
-              </button>
+              <>
+                <button onClick={() => onGoToLetter({
+                  from: depInfo ? `${depInfo[1]} (${depInfo[0]})` : "",
+                  to: arrInfo ? `${arrInfo[1]} (${arrInfo[0]})` : "",
+                  issue: type === "delay" ? "delayed" : type === "cancel" ? "cancelled" : "overbooked (denied boarding)",
+                  delayHrs: type === "delay" ? String(delayHrs) : "",
+                  distance: String(result.km),
+                  jurisdiction: result.jurisdiction,
+                  suggestedAmount: result.amount,
+                  suggestedCurrency: result.currency,
+                })}
+                  className="w-full bg-emerald-600 text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition">
+                  <Euro className="w-5 h-5" /> Generate my claim letter
+                </button>
+                <button onClick={onGoToGuide}
+                  className="w-full border-2 border-slate-200 bg-white text-slate-700 rounded-2xl py-3.5 font-semibold flex items-center justify-center gap-2 active:scale-[0.99] transition">
+                  Read the full claim guide
+                </button>
+              </>
             )}
 
             {result.regional && (

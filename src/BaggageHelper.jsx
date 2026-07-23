@@ -23,7 +23,7 @@ const SITUATIONS = {
       ["Track the bag", "Use the airline's WorldTracer reference. Most delayed bags arrive within 1–3 days."],
       ["If 21 days pass with no bag", "It's now legally treated as LOST — switch to the lost-baggage claim, which unlocks the full value of the bag's contents."],
     ],
-    tip: "Insider tip: airlines rarely advertise that delay expenses are reimbursable. Buy what you reasonably need, keep receipts, and claim it back.",
+    tip: "Airlines rarely advertise that delay expenses are reimbursable. Buy what you reasonably need, keep receipts, and claim it back.",
   },
   damaged: {
     icon: Wrench, color: "orange", label: "Damaged",
@@ -38,7 +38,7 @@ const SITUATIONS = {
       ["Don't throw the bag away", "The airline may want to inspect it or arrange a repair. Keep it until the claim is settled."],
       ["Submit the written claim within 7 days", "Send your claim with photos and the PIR reference. Ask for repair, replacement, or the cash value."],
     ],
-    tip: "Insider tip: the 7-day window is the trap most people miss. Airlines count on you noticing the damage at home and missing the deadline. File fast.",
+    tip: "The 7-day window is the trap most people miss. Airlines count on you noticing the damage at home and missing the deadline. File fast.",
   },
   lost: {
     icon: PackageX, color: "red", label: "Lost",
@@ -53,7 +53,7 @@ const SITUATIONS = {
       ["Submit the full claim in writing", "State that the bag is lost (or delayed 21+ days) and claim the total value, up to the Convention limit."],
       ["Escalate if they lowball you", "Airlines often offer a small flat amount first. You can reject it and insist on the documented value, then escalate to the regulator."],
     ],
-    tip: "Insider tip: airlines depreciate your items heavily. Itemise everything and push back on a first lowball offer — documented claims win more.",
+    tip: "Airlines depreciate your items heavily. Itemise everything and push back on a first lowball offer — documented claims win more.",
   },
 };
 
@@ -236,7 +236,7 @@ export default function BaggageHelper({ onOpenKit }) {
 
             {/* insider tip */}
             <div className="rounded-2xl p-4 text-white" style={{ backgroundColor: NAVY }}>
-              <div className="text-xs font-bold uppercase tracking-wider text-teal-300 mb-1">From someone who worked the airport</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-teal-300 mb-1">Practical tip</div>
               <p className="text-sm leading-snug">{data.tip}</p>
             </div>
 

@@ -135,7 +135,7 @@ export default function TrainClaimChecker({ onGoToLetter }) {
       </div>
 
       {step === 0 && (
-        <div className="bg-white border-b border-slate-200">
+        <div className="bg-white border-b border-slate-200 lg:hidden">
           <div className="px-4 py-4 grid grid-cols-2 gap-3">
             {[
               [Scale, "Grounded in law", "EU Regulation 2021/782"],

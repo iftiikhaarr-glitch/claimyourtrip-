@@ -12,7 +12,7 @@ const REGIONS = [
     pays: "Fixed cash compensation:",
     bands: [["Up to 1,500 km", "EUR 250"], ["1,500–3,500 km", "EUR 400"], ["Over 3,500 km", "EUR 600"]],
     triggers: ["Arrival delay of 3+ hours", "Cancellation with less than 14 days' notice", "Denied boarding (overbooking)"],
-    noPay: "No compensation for 'extraordinary circumstances' — severe weather, air-traffic control, security alerts, political instability. But technical faults and the airline's own staff strikes do NOT count as extraordinary, so you can still claim.",
+    noPay: "No compensation for 'extraordinary circumstances' — severe weather, air-traffic control, security alerts, political instability. Technical faults and the airline's own staff strikes usually are not considered extraordinary, although the circumstances of each disruption matter.",
     care: "On any long delay the airline must give you meals, drinks, two phone calls or emails, and a hotel plus transfer if you're stranded overnight — regardless of the cause.",
     escalate: "If the airline refuses, escalate to the National Enforcement Body of the country where the disruption happened, or use an ADR scheme. Then small claims court.",
     deadline: "Time limit varies by country — usually 2 to 6 years.",

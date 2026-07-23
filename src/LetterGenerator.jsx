@@ -1,38 +1,55 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Plane, Luggage, TrainFront, Copy, Check, FileDown, ArrowLeft, Sparkles } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
 
 const NAVY = "#0B2545";
 const CURRENCIES = ["EUR", "GBP", "CHF", "DKK", "SEK", "NOK", "PLN", "CZK", "HUF", "Other"];
 
+const FLIGHT_BANDS = {
+  EU: { short: 250, medium: 400, long: 600, longReduced: 300 },
+  UK: { short: 220, medium: 350, long: 520, longReduced: 260 },
+};
+
 function formatTrainCurrency(value, currency) {
   return currency === "Other" ? `${value} (your currency)` : `${currency || "EUR"} ${value}`;
 }
 
-function suggestAmount(distanceKm) {
-  if (!distanceKm) return "[EUR 250 / 400 / 600 depending on distance]";
+function suggestFlightAmount(distanceKm, jurisdiction, delayHrs) {
+  if (!jurisdiction) return "[select EU261 or UK261 above to calculate your amount]";
+  const currency = jurisdiction === "UK" ? "GBP" : "EUR";
+  const b = FLIGHT_BANDS[jurisdiction];
+  if (!distanceKm) return `[${currency} ${b.short} / ${b.medium} / ${b.long} depending on distance]`;
   const d = Number(distanceKm);
-  if (d <= 1500) return "EUR 250";
-  if (d <= 3500) return "EUR 400";
-  return "EUR 600";
+  if (d <= 1500) return `${currency} ${b.short}`;
+  if (d <= 3500) return `${currency} ${b.medium}`;
+  if (typeof delayHrs === "number" && delayHrs >= 3 && delayHrs < 4) return `${currency} ${b.longReduced}`;
+  return `${currency} ${b.long}`;
 }
 
 function buildFlightLetter(f) {
-  const amount = suggestAmount(f.distance);
+  const amount = f.suggestedAmount && f.suggestedCurrency
+    ? `${f.suggestedCurrency} ${f.suggestedAmount}`
+    : suggestFlightAmount(f.distance, f.jurisdiction, Number(f.delayHrs));
+  const lawName = f.jurisdiction === "UK"
+    ? "UK Regulation (EC) No 261/2004, commonly known as UK261"
+    : f.jurisdiction === "EU"
+    ? "Regulation (EC) No 261/2004"
+    : "[EU261 or UK261 — select above]";
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   return `${today}
 
 Dear ${f.airline || "[Airline]"} Customer Relations,
 
-Re: Compensation claim under Regulation EC 261/2004 — Flight ${f.flightNo || "[flight number]"} on ${f.flightDate || "[date]"}
+Re: Compensation claim under ${lawName} — Flight ${f.flightNo || "[flight number]"} on ${f.flightDate || "[date]"}
 
 I am writing regarding flight ${f.flightNo || "[flight number]"} from ${f.from || "[departure airport]"} to ${f.to || "[arrival airport]"}, scheduled for ${f.flightDate || "[date]"}, on which I was a confirmed passenger (booking reference ${f.bookingRef || "[booking reference]"}).
 
-The flight was ${f.issue || "delayed/cancelled"}${f.delayHrs ? `, causing me to arrive at my final destination approximately ${f.delayHrs} hours late` : ""}. Under Regulation EC 261/2004, I am entitled to compensation of ${amount} for this disruption.
+The flight was ${f.issue || "delayed/cancelled"}${f.delayHrs ? `, causing me to arrive at my final destination approximately ${f.delayHrs} hours late` : ""}. Under ${lawName}, I believe I may be entitled to compensation of ${amount} for this disruption.
 
-The disruption was not caused by extraordinary circumstances outside the airline's control, and I am therefore entitled to the compensation set out above.
+Unless the airline can demonstrate that the disruption resulted from extraordinary circumstances that legally exempt it from compensation, I believe the compensation set out above is owed.
 
-Please arrange payment of ${amount} to me within 14 days of the date of this letter. If I do not receive a satisfactory response, I will escalate this matter to the relevant national enforcement body and, if necessary, pursue it through the courts.
+Please arrange payment of ${amount} to me within 14 days of the date of this letter, or confirm the specific extraordinary circumstances you are relying on if you dispute this claim. If I do not receive a satisfactory response, I will escalate this matter to the relevant national enforcement body and, if necessary, pursue it through the courts.
 
 I have attached copies of my booking confirmation and boarding pass as supporting evidence.
 
@@ -125,8 +142,10 @@ export default function LetterGenerator({ onBack }) {
     "Free Flight & Baggage Claim Letter Generator | ClaimYourTrip",
     "Generate a ready-to-send compensation claim letter for flight delays, cancellations, or baggage issues in under a minute."
   );
-  const [kind, setKind] = useState(null);
-  const [f, setF] = useState({});
+  const location = useLocation();
+  const flightPrefill = location.state?.flightPrefill;
+  const [kind, setKind] = useState(flightPrefill ? "flight" : null);
+  const [f, setF] = useState(() => (flightPrefill ? { ...flightPrefill } : {}));
   const [copied, setCopied] = useState(false);
   const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
 
@@ -230,12 +249,12 @@ export default function LetterGenerator({ onBack }) {
             </button>
 
             <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-              <Field label="Your full name"><input className={inputCls} value={f.name || ""} onChange={set("name")} placeholder="Jane Smith" /></Field>
-              <Field label="Your email"><input className={inputCls} value={f.email || ""} onChange={set("email")} placeholder="jane@email.com" /></Field>
+              <Field label="Your full name"><input type="text" autoComplete="name" className={inputCls} value={f.name || ""} onChange={set("name")} placeholder="Jane Smith" /></Field>
+              <Field label="Your email"><input type="email" autoComplete="email" className={inputCls} value={f.email || ""} onChange={set("email")} placeholder="jane@email.com" /></Field>
               {kind !== "train" && (
                 <>
                   <Field label="Airline"><input className={inputCls} value={f.airline || ""} onChange={set("airline")} placeholder="Emirates" /></Field>
-                  <Field label="Flight number"><input className={inputCls} value={f.flightNo || ""} onChange={set("flightNo")} placeholder="EK202" /></Field>
+                  <Field label="Flight number"><input autoComplete="off" className={inputCls} value={f.flightNo || ""} onChange={set("flightNo")} placeholder="EK202" /></Field>
                   <Field label="Flight date"><input className={inputCls} value={f.flightDate || ""} onChange={set("flightDate")} placeholder="14 June 2026" /></Field>
                 </>
               )}
@@ -250,11 +269,18 @@ export default function LetterGenerator({ onBack }) {
                 <Field label="To"><input className={inputCls} value={f.to || ""} onChange={set("to")} placeholder={kind === "train" ? "Munich Hbf" : "London (LHR)"} /></Field>
               </div>
               {kind !== "train" && (
-                <Field label="Booking reference"><input className={inputCls} value={f.bookingRef || ""} onChange={set("bookingRef")} placeholder="ABC123" /></Field>
+                <Field label="Booking reference"><input autoComplete="off" className={inputCls} value={f.bookingRef || ""} onChange={set("bookingRef")} placeholder="ABC123" /></Field>
               )}
 
               {kind === "flight" && (
                 <>
+                  <Field label="Which law applies?">
+                    <select className={inputCls} value={f.jurisdiction || ""} onChange={set("jurisdiction")} required>
+                      <option value="">Select…</option>
+                      <option value="EU">EU261 — amounts in EUR</option>
+                      <option value="UK">UK261 — amounts in GBP</option>
+                    </select>
+                  </Field>
                   <Field label="What happened?">
                     <select className={inputCls} value={f.issue || ""} onChange={set("issue")}>
                       <option value="">Select…</option>
@@ -264,10 +290,10 @@ export default function LetterGenerator({ onBack }) {
                     </select>
                   </Field>
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Hours late at destination"><input className={inputCls} value={f.delayHrs || ""} onChange={set("delayHrs")} placeholder="4" /></Field>
-                    <Field label="Flight distance (km)"><input className={inputCls} value={f.distance || ""} onChange={set("distance")} placeholder="5500" /></Field>
+                    <Field label="Hours late at destination"><input type="number" inputMode="numeric" min="0" className={inputCls} value={f.delayHrs || ""} onChange={set("delayHrs")} placeholder="4" /></Field>
+                    <Field label="Flight distance (km)"><input type="number" inputMode="numeric" min="0" className={inputCls} value={f.distance || ""} onChange={set("distance")} placeholder="5500" /></Field>
                   </div>
-                  <p className="text-[11px] text-slate-400">Tip: distance sets the amount — up to 1,500km = €250, up to 3,500km = €400, over 3,500km = €600.</p>
+                  <p className="text-[11px] text-slate-400">Tip: distance and jurisdiction set the amount — EU261: €250 / €400 / €600. UK261: £220 / £350 / £520.</p>
                 </>
               )}
 
@@ -297,7 +323,7 @@ export default function LetterGenerator({ onBack }) {
                     </select>
                   </Field>
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Ticket price paid"><input className={inputCls} value={f.ticketPrice || ""} onChange={set("ticketPrice")} placeholder="89.50" /></Field>
+                    <Field label="Ticket price paid"><input type="number" inputMode="decimal" step="0.01" min="0" className={inputCls} value={f.ticketPrice || ""} onChange={set("ticketPrice")} placeholder="89.50" /></Field>
                     <Field label="Ticket currency">
                       <select className={inputCls} value={f.currency || "EUR"} onChange={set("currency")}>
                         {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
