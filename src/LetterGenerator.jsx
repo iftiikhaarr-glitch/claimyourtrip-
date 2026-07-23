@@ -307,8 +307,8 @@ export default function LetterGenerator({ onBack }) {
                       <option value="lost">Lost</option>
                     </select>
                   </Field>
-                  <Field label="PIR number (from the airport report)"><input className={inputCls} value={f.pir || ""} onChange={set("pir")} placeholder="DXBEK12345" /></Field>
-                  <Field label="Amount you're claiming (optional)"><input className={inputCls} value={f.amount || ""} onChange={set("amount")} placeholder="EUR 320" /></Field>
+                  <Field label="PIR number (from the airport report)"><input autoComplete="off" className={inputCls} value={f.pir || ""} onChange={set("pir")} placeholder="DXBEK12345" /></Field>
+                  <Field label="Amount you're claiming (optional)"><input inputMode="decimal" className={inputCls} value={f.amount || ""} onChange={set("amount")} placeholder="EUR 320" /></Field>
                 </>
               )}
 

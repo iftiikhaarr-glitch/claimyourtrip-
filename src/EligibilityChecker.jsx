@@ -172,7 +172,7 @@ export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
   useSeoSchema({
     breadcrumb: [["Home", "/"], ["Flight Delay & Cancellation Checker", "/"]],
     faqs: [
-      ["How much compensation can I get for a delayed or cancelled flight?", "Under EU261/UK261, you may be entitled to EUR 250–600 (or the GBP equivalent) per passenger depending on flight distance, if the delay is 3+ hours or the airline cancelled with under 14 days' notice — and the cause wasn't extraordinary circumstances like severe weather or air traffic control restrictions."],
+      ["How much compensation can I get for a delayed or cancelled flight?", "Under EU261, EU departures may be entitled to EUR 250, 400, or 600 per passenger depending on distance; under UK261, UK departures may be entitled to GBP 220, 350, or 520 — separate legal figures, not a currency conversion of each other. Eligibility depends on the delay being 3+ hours or a cancellation with under 14 days' notice, and the cause not being extraordinary circumstances like severe weather or air traffic control restrictions."],
       ["Do I need to use a claims company?", "No. You can write directly to the airline yourself using a free letter template and keep 100% of any compensation, instead of paying a claims firm's typical 20–35% cut."],
       ["How long do I have to claim flight compensation?", "Usually 2 to 6 years, depending on the country — but it's best to claim as soon as possible while your evidence (boarding pass, booking confirmation) is easy to find."],
     ],

@@ -186,7 +186,7 @@ export default function TrainClaimChecker({ onGoToLetter }) {
               </div>
             </Field>
             <Field label={delayLabel}>
-              <input type="number" min="0" step="1" value={delayMins}
+              <input type="number" min="0" step="1" inputMode="numeric" value={delayMins}
                 onChange={(e) => setDelayMins(e.target.value)}
                 placeholder="e.g. 90"
                 className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-3 text-[14px] font-medium text-slate-800" />
