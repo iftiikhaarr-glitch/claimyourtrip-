@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ChevronDown, Copy, Check, FileText, Send, AlertTriangle,
   Building2, Scale, ArrowRight, Globe, Info, ShieldCheck
@@ -272,6 +273,13 @@ export default function ClaimGuide({ onGoToChecker }) {
             Check my flight <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+
+        <p className="text-[12px] text-slate-500 px-2 leading-snug">
+          For a general overview of how official EU and UK sources describe flight delays and cancellations, see{" "}
+          <Link to="/flight-delays-and-cancellations" className="text-blue-600 underline font-medium">
+            Flight Delays and Cancellations: A General Overview
+          </Link>.
+        </p>
 
         <div className="flex items-start gap-2 px-2">
           <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />

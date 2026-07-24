@@ -1,7 +1,7 @@
 // scripts/prerender.mjs
 //
 // Runs after `vite build`. Serves the built dist/ folder locally, visits each
-// of the 8 fixed SPA routes with Playwright, waits for the client-side
+// of the fixed SPA routes with Playwright, waits for the client-side
 // useSeo/useSeoSchema effects to finish injecting <title>/meta/JSON-LD, and
 // writes the fully-rendered HTML to disk so each route serves accurate SEO
 // tags even to crawlers that don't execute JavaScript.
@@ -40,18 +40,20 @@ const MIME_TYPES = {
 // dir: "" means the output lives at dist/index.html itself (the "/" route).
 // title: the exact string useSeo() sets for this route — used as part of the
 // render-complete signal.
-// hasSchema: whether useSeoSchema() injects #schema-faq + #schema-breadcrumb
-// on this route. Routes with hasSchema:false must NOT have those tags —
-// their absence is asserted just as strictly as presence is for the other 3.
+// hasFaqSchema / hasBreadcrumbSchema: whether useSeoSchema() injects
+// #schema-faq / #schema-breadcrumb on this route, checked independently
+// since a route can have one without the other (e.g. a guide page with a
+// breadcrumb but no FAQ). Absence is asserted just as strictly as presence.
 const ROUTES = [
-  { path: "/", dir: "", title: "Flight Delay & Cancellation Compensation Checker | ClaimYourTrip", hasSchema: true },
-  { path: "/baggage-claim-helper", dir: "baggage-claim-helper", title: "Lost, Delayed or Damaged Baggage Claim Help | ClaimYourTrip", hasSchema: true },
-  { path: "/train-delay-compensation", dir: "train-delay-compensation", title: "Train Delay & Cancellation Compensation Checker | ClaimYourTrip", hasSchema: true },
-  { path: "/letter-generator", dir: "letter-generator", title: "Free Flight & Baggage Claim Letter Generator | ClaimYourTrip", hasSchema: false },
-  { path: "/claim-guide", dir: "claim-guide", title: "How to Claim Flight Compensation Yourself | ClaimYourTrip", hasSchema: false },
-  { path: "/privacy", dir: "privacy", title: "Privacy Policy | ClaimYourTrip", hasSchema: false },
-  { path: "/terms", dir: "terms", title: "Terms & Disclaimer | ClaimYourTrip", hasSchema: false },
-  { path: "/affiliate-disclosure", dir: "affiliate-disclosure", title: "Affiliate Disclosure | ClaimYourTrip", hasSchema: false },
+  { path: "/", dir: "", title: "Flight Delay & Cancellation Compensation Checker | ClaimYourTrip", hasFaqSchema: true, hasBreadcrumbSchema: true },
+  { path: "/baggage-claim-helper", dir: "baggage-claim-helper", title: "Lost, Delayed or Damaged Baggage Claim Help | ClaimYourTrip", hasFaqSchema: true, hasBreadcrumbSchema: true },
+  { path: "/train-delay-compensation", dir: "train-delay-compensation", title: "Train Delay & Cancellation Compensation Checker | ClaimYourTrip", hasFaqSchema: true, hasBreadcrumbSchema: true },
+  { path: "/letter-generator", dir: "letter-generator", title: "Free Flight & Baggage Claim Letter Generator | ClaimYourTrip", hasFaqSchema: false, hasBreadcrumbSchema: false },
+  { path: "/claim-guide", dir: "claim-guide", title: "How to Claim Flight Compensation Yourself | ClaimYourTrip", hasFaqSchema: false, hasBreadcrumbSchema: false },
+  { path: "/flight-delays-and-cancellations", dir: "flight-delays-and-cancellations", title: "Flight Delays and Cancellations: A General Overview | ClaimYourTrip", hasFaqSchema: false, hasBreadcrumbSchema: true },
+  { path: "/privacy", dir: "privacy", title: "Privacy Policy | ClaimYourTrip", hasFaqSchema: false, hasBreadcrumbSchema: false },
+  { path: "/terms", dir: "terms", title: "Terms & Disclaimer | ClaimYourTrip", hasFaqSchema: false, hasBreadcrumbSchema: false },
+  { path: "/affiliate-disclosure", dir: "affiliate-disclosure", title: "Affiliate Disclosure | ClaimYourTrip", hasFaqSchema: false, hasBreadcrumbSchema: false },
 ];
 
 function isTravelpayoutsHost(hostname) {
@@ -102,19 +104,16 @@ function cleanPreviousOutput() {
 
 async function waitForRenderComplete(page, route) {
   await page.waitForFunction(
-    ({ expectedTitle, hasSchema }) => {
+    ({ expectedTitle, hasFaqSchema, hasBreadcrumbSchema }) => {
       if (document.title !== expectedTitle) return false;
       if (!document.getElementById("schema-organization")) return false;
       const faqPresent = !!document.getElementById("schema-faq");
       const breadcrumbPresent = !!document.getElementById("schema-breadcrumb");
-      if (hasSchema) {
-        if (!faqPresent || !breadcrumbPresent) return false;
-      } else {
-        if (faqPresent || breadcrumbPresent) return false;
-      }
+      if (faqPresent !== hasFaqSchema) return false;
+      if (breadcrumbPresent !== hasBreadcrumbSchema) return false;
       return true;
     },
-    { expectedTitle: route.title, hasSchema: route.hasSchema },
+    { expectedTitle: route.title, hasFaqSchema: route.hasFaqSchema, hasBreadcrumbSchema: route.hasBreadcrumbSchema },
     { timeout: RENDER_TIMEOUT_MS }
   );
 }
@@ -137,7 +136,7 @@ async function launchBrowser() {
 }
 
 async function verifyOutput() {
-  console.log("\nVerifying generated output on disk (all 8 files, not a sample):");
+  console.log(`\nVerifying generated output on disk (all ${ROUTES.length} files, not a sample):`);
   const problems = [];
   let allTpCounts = [];
 
@@ -156,11 +155,14 @@ async function verifyOutput() {
     const hasFaq = html.includes('id="schema-faq"');
     const hasBreadcrumb = html.includes('id="schema-breadcrumb"');
     if (!hasOrg) checks.push("missing schema-organization");
-    if (route.hasSchema) {
+    if (route.hasFaqSchema) {
       if (!hasFaq) checks.push("missing schema-faq (expected)");
-      if (!hasBreadcrumb) checks.push("missing schema-breadcrumb (expected)");
     } else {
       if (hasFaq) checks.push("unexpected schema-faq present");
+    }
+    if (route.hasBreadcrumbSchema) {
+      if (!hasBreadcrumb) checks.push("missing schema-breadcrumb (expected)");
+    } else {
       if (hasBreadcrumb) checks.push("unexpected schema-breadcrumb present");
     }
 
@@ -275,7 +277,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("\nprerender: all 8 files passed schema-matrix, Travelpayouts, and Analytics verification.");
+  console.log(`\nprerender: all ${results.length} files passed schema-matrix, Travelpayouts, and Analytics verification.`);
 }
 
 main().catch((err) => {
