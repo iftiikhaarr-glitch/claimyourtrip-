@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
     "test": "node --test api/**/*.test.js"
   },
@@ -17,6 +17,7 @@
     "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
+    "@sparticuz/chromium": "149.0.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
     "playwright": "^1.61.0",
