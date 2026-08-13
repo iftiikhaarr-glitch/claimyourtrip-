@@ -2,6 +2,34 @@
   "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "headers": [
     {
+      "source": "/buy-claim-pack",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-eiHMVaB5c7dym96gkmttab9vcrFgxrUFDM9aPmBufBQ=' *.paypal.com *.paypalobjects.com *.venmo.com; connect-src 'self' *.paypal.com *.paypalobjects.com *.venmo.com; frame-src *.paypal.com *.paypalobjects.com *.venmo.com; child-src *.paypal.com *.paypalobjects.com *.venmo.com; img-src 'self' *.paypal.com *.paypalobjects.com data:"
+        }
+      ]
+    },
+    {
+      "source": "/purchase-success",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" },
+        { "key": "Cache-Control", "value": "private, no-store" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-eiHMVaB5c7dym96gkmttab9vcrFgxrUFDM9aPmBufBQ='; connect-src 'self'; frame-src 'none'; child-src 'none'; img-src 'self'"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
@@ -11,5 +39,8 @@
         { "key": "Content-Security-Policy", "value": "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'" }
       ]
     }
+  ],
+  "crons": [
+    { "path": "/api/paypal/outbox-worker", "schedule": "0 3 * * *" }
   ]
 }
