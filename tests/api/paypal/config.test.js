@@ -1,7 +1,7 @@
 // api/paypal/config.test.js
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import handler from "./config.js";
+import handler from "../../../api/paypal/config.js";
 
 const originalEnv = process.env;
 

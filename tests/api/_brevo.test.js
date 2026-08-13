@@ -1,7 +1,7 @@
 // api/_brevo.test.js
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { brevoClient } from "./_brevo.js";
+import { brevoClient } from "../../api/_brevo.js";
 
 const originalEnv = process.env;
 const originalFetch = global.fetch;

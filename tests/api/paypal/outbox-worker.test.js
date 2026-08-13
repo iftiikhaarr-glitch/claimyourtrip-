@@ -1,10 +1,10 @@
 // api/paypal/outbox-worker.test.js
 import { test, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert";
-import handler from "./outbox-worker.js";
-import { brevoClient } from "../_brevo.js";
-import { db } from "../_db.js";
-import { createFakeDb } from "../test-helpers/fake-db.js";
+import handler from "../../../api/paypal/outbox-worker.js";
+import { brevoClient } from "../../../api/_brevo.js";
+import { db } from "../../../api/_db.js";
+import { createFakeDb } from "../../helpers/fake-db.js";
 
 const originalEnv = process.env;
 let fakeDb;

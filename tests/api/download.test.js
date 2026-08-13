@@ -2,11 +2,11 @@
 import { test, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert";
 import { Writable, Readable } from "node:stream";
-import handler from "./download.js";
-import { blobClient } from "./_blob.js";
-import { db } from "./_db.js";
-import { reconstructBearerToken } from "./_crypto.js";
-import { createFakeDb } from "./test-helpers/fake-db.js";
+import handler from "../../api/download.js";
+import { blobClient } from "../../api/_blob.js";
+import { db } from "../../api/_db.js";
+import { reconstructBearerToken } from "../../api/_crypto.js";
+import { createFakeDb } from "../helpers/fake-db.js";
 
 const originalEnv = process.env;
 let consoleErrorCalls = [];

@@ -9,7 +9,7 @@ import {
   generateTokenId,
   reconstructBearerToken,
   verifyBearerToken,
-} from "./_crypto.js";
+} from "../../api/_crypto.js";
 
 const originalEnv = process.env;
 

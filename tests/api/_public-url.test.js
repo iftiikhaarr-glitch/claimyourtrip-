@@ -1,7 +1,7 @@
 // api/_public-url.test.js
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { resolvePublicAppBaseUrl } from "./_public-url.js";
+import { resolvePublicAppBaseUrl } from "../../api/_public-url.js";
 
 const originalEnv = process.env;
 

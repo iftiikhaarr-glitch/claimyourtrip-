@@ -4,10 +4,10 @@
 // (req,res) signature used elsewhere in this project.
 import { test, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert";
-import { POST as handler } from "./webhook.js";
-import { paypalClient } from "./_paypal-client.js";
-import { db } from "../_db.js";
-import { createFakeDb } from "../test-helpers/fake-db.js";
+import { POST as handler } from "../../../api/paypal/webhook.js";
+import { paypalClient } from "../../../api/paypal/_paypal-client.js";
+import { db } from "../../../api/_db.js";
+import { createFakeDb } from "../../helpers/fake-db.js";
 
 const originalEnv = process.env;
 let consoleErrorCalls = [];

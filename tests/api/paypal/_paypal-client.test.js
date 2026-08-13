@@ -1,7 +1,7 @@
 // api/paypal/_paypal-client.test.js
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { validateCapturedOrder, resolvePayPalEnvironment } from "./_paypal-client.js";
+import { validateCapturedOrder, resolvePayPalEnvironment } from "../../../api/paypal/_paypal-client.js";
 
 const originalEnv = process.env;
 

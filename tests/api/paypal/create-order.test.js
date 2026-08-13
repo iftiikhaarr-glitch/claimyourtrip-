@@ -1,9 +1,9 @@
 // api/paypal/create-order.test.js
 import { test, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert";
-import handler from "./create-order.js";
-import { paypalClient } from "./_paypal-client.js";
-import { db } from "../_db.js";
+import handler from "../../../api/paypal/create-order.js";
+import { paypalClient } from "../../../api/paypal/_paypal-client.js";
+import { db } from "../../../api/_db.js";
 
 const originalEnv = process.env;
 let consoleErrorCalls = [];

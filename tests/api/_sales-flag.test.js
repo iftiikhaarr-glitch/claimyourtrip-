@@ -1,7 +1,7 @@
 // api/_sales-flag.test.js
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { isSalesEnabled } from "./_sales-flag.js";
+import { isSalesEnabled } from "../../api/_sales-flag.js";
 
 const originalEnv = process.env;
 

@@ -1,11 +1,11 @@
 // api/paypal/capture-order.test.js
 import { test, beforeEach, afterEach, mock } from "node:test";
 import assert from "node:assert";
-import handler from "./capture-order.js";
-import { paypalClient, PayPalApiError } from "./_paypal-client.js";
-import { db } from "../_db.js";
-import { hashCheckoutSessionSecret, verifyBearerToken } from "../_crypto.js";
-import { createFakeDb } from "../test-helpers/fake-db.js";
+import handler from "../../../api/paypal/capture-order.js";
+import { paypalClient, PayPalApiError } from "../../../api/paypal/_paypal-client.js";
+import { db } from "../../../api/_db.js";
+import { hashCheckoutSessionSecret, verifyBearerToken } from "../../../api/_crypto.js";
+import { createFakeDb } from "../../helpers/fake-db.js";
 
 const originalEnv = process.env;
 let consoleErrorCalls = [];
