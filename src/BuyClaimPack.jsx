@@ -137,7 +137,7 @@ export default function BuyClaimPack() {
           <paypal-button
             ref={containerRef}
             type="pay"
-            hidden={!showPayPalButton}
+            {...(!showPayPalButton ? { hidden: true } : {})}
             aria-live="polite"
           ></paypal-button>
 
