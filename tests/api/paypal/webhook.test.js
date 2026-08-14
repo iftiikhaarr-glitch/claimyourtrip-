@@ -52,7 +52,21 @@ function completedEventText({ id = "WH-EVT-1", orderId = "ORDER-1" } = {}) {
 }
 
 function captureStatusEventText(eventType, { id = "WH-EVT-1", captureId = "CAP-1" } = {}) {
-  return JSON.stringify({ id, event_type: eventType, resource: { id: captureId } });
+  if (eventType === "PAYMENT.CAPTURE.REFUNDED" || eventType === "PAYMENT.CAPTURE.REVERSED") {
+    return JSON.stringify({
+      id,
+      event_type: eventType,
+      resource_type: "refund",
+      resource: {
+        id: "REFUND-1",
+        links: [
+          { rel: "self", method: "GET", href: "https://api-m.sandbox.paypal.com/v2/payments/refunds/REFUND-1" },
+          { rel: "up", method: "GET", href: `https://api-m.sandbox.paypal.com/v2/payments/captures/${captureId}` },
+        ],
+      },
+    });
+  }
+  return JSON.stringify({ id, event_type: eventType, resource_type: "capture", resource: { id: captureId } });
 }
 
 function disputeEventText(eventType, { id = "WH-EVT-1", captureId = "CAP-1", disputeId = "DISPUTE-1" } = {}) {
@@ -311,6 +325,32 @@ test("REFUNDED revokes the active token and sets status to refunded", async () =
   assert.strictEqual(response.status, 200);
   assert.strictEqual([...fakeDb.state.purchases.values()][0].status, "refunded");
   assert.strictEqual(fakeDb.state.downloadTokens[0].revoked_at !== null, true);
+});
+
+test("REFUNDED never mistakes PayPal's refund resource.id for the original capture id", async () => {
+  fakeDb.seedPurchase({ id: "p1", paypal_order_id: "ORDER-1", paypal_capture_id: "REFUND-1", status: "completed" });
+  fakeDb.seedToken({ purchase_id: "p1", token_id: "tok-1" });
+
+  await handler(makeRequest(captureStatusEventText("PAYMENT.CAPTURE.REFUNDED", { id: "WH-REFUND-ID", captureId: "CAP-OTHER" })));
+
+  assert.strictEqual([...fakeDb.state.purchases.values()][0].status, "completed");
+  assert.strictEqual(fakeDb.state.downloadTokens[0].revoked_at, null);
+});
+
+test("REFUNDED with a malformed up link is a safe no-op", async () => {
+  fakeDb.seedPurchase({ id: "p1", paypal_order_id: "ORDER-1", paypal_capture_id: "CAP-1", status: "completed" });
+  fakeDb.seedToken({ purchase_id: "p1", token_id: "tok-1" });
+  const eventText = JSON.stringify({
+    id: "WH-BAD-UP",
+    event_type: "PAYMENT.CAPTURE.REFUNDED",
+    resource_type: "refund",
+    resource: { id: "REFUND-1", links: [{ rel: "up", href: "https://api-m.sandbox.paypal.com/v2/payments/refunds/REFUND-1" }] },
+  });
+
+  const response = await handler(makeRequest(eventText));
+  assert.strictEqual(response.status, 200);
+  assert.strictEqual([...fakeDb.state.purchases.values()][0].status, "completed");
+  assert.strictEqual(fakeDb.state.downloadTokens[0].revoked_at, null);
 });
 
 test("REVERSED revokes the active token and sets status to reversed", async () => {

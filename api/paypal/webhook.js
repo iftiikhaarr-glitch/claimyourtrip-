@@ -108,17 +108,24 @@ function extractCaptureIdForEventType(eventType, event) {
   switch (eventType) {
     case "PAYMENT.CAPTURE.REFUNDED":
     case "PAYMENT.CAPTURE.REVERSED": {
-      // NOT independently confirmed against an official sample payload in
-      // this session (PayPal's docs did not surface one for these two
-      // event types on the pages fetched). Best-available field; treated
-      // as unconfirmed and flagged for live-sandbox verification. If wrong,
-      // the failure mode is a safe no-op (see applyRestrictiveTransition's
-      // "no matching purchase -> return" branch below), not corruption —
-      // but a real refund silently failing to revoke access is a genuine
-      // business risk and must be checked against a real sandbox refund
-      // webhook before this ships.
-      const id = event?.resource?.id;
-      return typeof id === "string" ? id : null;
+      // A real PayPal Sandbox PAYMENT.CAPTURE.REFUNDED payload (verified
+      // 2026-08-14) uses resource.id for the refund id. The original capture
+      // id is carried by the resource's rel="up" HATEOAS link:
+      //   /v2/payments/captures/{capture_id}
+      // Prefer an explicit related id if PayPal supplies one, then parse only
+      // that exact capture-resource path. Never fall back to the refund id.
+      const relatedCaptureId = event?.resource?.supplementary_data?.related_ids?.capture_id;
+      if (typeof relatedCaptureId === "string" && relatedCaptureId) return relatedCaptureId;
+
+      const upLink = event?.resource?.links?.find((link) => link?.rel === "up" && typeof link?.href === "string");
+      if (!upLink) return null;
+      try {
+        const url = new URL(upLink.href);
+        const match = url.pathname.match(/^\/v2\/payments\/captures\/([^/]+)$/);
+        return match ? decodeURIComponent(match[1]) : null;
+      } catch {
+        return null;
+      }
     }
     case "CUSTOMER.DISPUTE.CREATED":
     case "CUSTOMER.DISPUTE.RESOLVED":
