@@ -12,6 +12,8 @@ import TrainClaimChecker from "./TrainClaimChecker.jsx";
 import { PrivacyPolicy, TermsOfService, AffiliateDisclosure } from "./LegalPages.jsx";
 import LetterGenerator from "./LetterGenerator.jsx";
 import FlightDelaysOverviewGuide from "./FlightDelaysOverviewGuide.jsx";
+import BuyClaimPack from "./BuyClaimPack.jsx";
+import PurchaseSuccess from "./PurchaseSuccess.jsx";
 
 /* ---- Desktop-only side panels. Hidden below lg so mobile is untouched. ---- */
 
@@ -305,6 +307,8 @@ export default function App() {
             <Route path="/letter-generator" element={<LetterGenerator onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/claim-guide" element={<ClaimGuide onGoToChecker={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/flight-delays-and-cancellations" element={<FlightDelaysOverviewGuide />} />
+            <Route path="/buy-claim-pack" element={<BuyClaimPack />} />
+            <Route path="/purchase-success" element={<PurchaseSuccess />} />
             <Route path="/privacy" element={<PrivacyPolicy onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/terms" element={<TermsOfService onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />
             <Route path="/affiliate-disclosure" element={<AffiliateDisclosure onBack={() => { navigate("/"); window.scrollTo({ top: 0 }); }} />} />

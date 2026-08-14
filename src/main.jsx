@@ -1,3 +1,4 @@
+import "./purchaseToken.js";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -17,8 +18,11 @@ function Root() {
       <BrowserRouter>
         <App />
         <CookieBanner />
-        {/* Analytics only loads if user consented */}
-        {isLoaded && consent === true && <Analytics />}
+        {/* Analytics only loads if user consented, and never reports events
+            from the purchase-success route */}
+        {isLoaded && consent === true && (
+          <Analytics beforeSend={(event) => (event.url.includes("/purchase-success") ? null : event)} />
+        )}
       </BrowserRouter>
     </>
   );

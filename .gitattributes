@@ -1,0 +1,10 @@
+# Force LF line endings for index.html regardless of platform or local
+# core.autocrlf settings. Scoped to this one file (not the whole repo) to
+# avoid an unrelated repo-wide line-ending diff. Added specifically because
+# index.html's inline Travelpayouts trigger script is now referenced by an
+# exact SHA-256 CSP hash (see vercel.json + scripts/prerender.mjs) — without
+# this, a Windows checkout with core.autocrlf=true produces CRLF locally
+# while Vercel's Linux build container checks out LF, silently producing two
+# different hashes for the "same" file and breaking the CSP allowlist in
+# production.
+index.html text eol=lf

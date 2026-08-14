@@ -3,7 +3,7 @@
 
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import handler from "./subscribe.js";
+import handler from "../../api/subscribe.js";
 
 const originalEnv = process.env;
 const originalFetch = global.fetch;
