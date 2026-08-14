@@ -21,6 +21,12 @@ function makeSpies({ captureBehavior } = {}) {
   return { calls, createOrder, captureOrder, onSuccess };
 }
 
+test("handleCreateOrder returns the object shape required by PayPal JS SDK v6", async () => {
+  const { ...deps } = makeSpies();
+  const c = createCheckoutController(deps);
+  assert.deepStrictEqual(await c.handleCreateOrder(), { orderId: "ORDER-1" });
+});
+
 test("Happy path: create → approve → capture → success", async () => {
   const { calls, ...deps } = makeSpies();
   const c = createCheckoutController(deps);

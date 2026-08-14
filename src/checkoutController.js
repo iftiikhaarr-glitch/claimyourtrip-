@@ -66,7 +66,9 @@ export function createCheckoutController({ createOrder, captureOrder, onSuccess,
       try {
         const { orderId, checkoutSessionSecret } = await createOrder();
         approved = { orderId, checkoutSessionSecret };
-        return orderId;
+        // PayPal JS SDK v6 requires the order promise passed to
+        // paymentSession.start() to resolve to an object, not a raw ID.
+        return { orderId };
       } catch (err) {
         // create-order itself failed before any order existed — safe to
         // reset for a fresh attempt.
