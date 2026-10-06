@@ -18,7 +18,7 @@ const AIRPORTS = [
   ["HEL","Helsinki",60.32,24.96,"EU"],["DUB","Dublin",53.42,-6.27,"EU"],["ATH","Athens",37.94,23.94,"EU"],
   ["WAW","Warsaw",52.17,20.97,"EU"],["PRG","Prague",50.1,14.26,"EU"],["BUD","Budapest",47.44,19.26,"EU"],
   ["IST","Istanbul",41.26,28.74,"INT"],["DXB","Dubai",25.25,55.36,"INT"],["DOH","Doha",25.27,51.61,"INT"],
-  ["AUH","Abu Dhabi",24.43,54.65,"INT"],["RUH","Riyadh",24.96,46.7,"INT"],["JED","Jeddah",21.68,39.16,"INT"],
+  ["AUH","Abu Dhabi",24.43,54.65,"INT"],["RUH","Riyadh",24.96,46.7,"SA"],["JED","Jeddah",21.68,39.16,"SA"],
   ["CAI","Cairo",30.12,31.41,"INT"],["AMM","Amman",31.72,35.99,"INT"],["BEY","Beirut",33.82,35.49,"INT"],
   ["JFK","New York JFK",40.64,-73.78,"INT"],["EWR","Newark",40.69,-74.17,"INT"],["LAX","Los Angeles",33.94,-118.41,"INT"],
   ["ORD","Chicago O'Hare",41.97,-87.91,"INT"],["MIA","Miami",25.79,-80.29,"INT"],["YYZ","Toronto",43.68,-79.63,"INT"],
@@ -46,7 +46,8 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
   const km = distanceKm(dep, arr);
   const depEU = dep[4] === "EU" || dep[4] === "UK";
   const arrEU = arr[4] === "EU" || arr[4] === "UK";
-  const intraEU = dep[4] !== "INT" && arr[4] !== "INT";
+  const intraEU = ["EU", "UK"].includes(dep[4]) && ["EU", "UK"].includes(arr[4]);
+  const depSaudi = dep[4] === "SA";
   const reasons = [];
 
   // Determine jurisdiction. Departure-based coverage is unambiguous. Arrival-based
@@ -75,12 +76,50 @@ function assess({ from, to, euCarrier, type, delayHrs, notice, reason }) {
   let amount = 0, eligible = false, careOnly = false;
 
   if (!covered) {
-    // Honest regional guidance for Gulf/MENA routes (no fixed payout — these need proven loss)
+    // Regional guidance for Gulf/MENA routes. Saudi departures have a fixed
+    // GACA scheme; the remaining routes use care/proven-loss guidance.
     const GULF = { DXB: "UAE GCAA", AUH: "UAE GCAA", DOH: "Qatar CAA", RUH: "Saudi GACA", JED: "Saudi GACA" };
     const MENA = ["CAI", "AMM", "BEY", "IST", "CMN"];
     const depGulf = GULF[dep[0]];
     const regionTouch = GULF[dep[0]] || GULF[arr[0]] || MENA.includes(dep[0]) || MENA.includes(arr[0]);
     reasons.push(`EU/UK fixed compensation doesn't apply here: those rules cover flights departing the EU/UK, or arriving there on an EU/UK airline. Your flight departs ${dep[1]} (outside the EU/UK).`);
+    if (depSaudi) {
+      let gacaSummary = "Saudi GACA refund or compensation rules may apply";
+      reasons.push("Saudi GACA passenger-rights rules generally apply because this flight departs a Saudi airport, regardless of the airline.");
+
+      if (type === "delay") {
+        if (delayHrs > 6) {
+          gacaSummary = "150 SDR (approximately SAR 750 / USD 200)";
+          reasons.push("For an arrival delay of more than 6 hours, GACA provides 150 SDR in compensation (approximately SAR 750 / USD 200). SDR conversions fluctuate with the IMF rate.");
+        } else if (delayHrs >= 3) {
+          gacaSummary = "50 SDR (approximately SAR 250 / USD 66)";
+          reasons.push("For an arrival delay of 3–6 hours, GACA provides 50 SDR in compensation (approximately SAR 250 / USD 66). SDR conversions fluctuate with the IMF rate.");
+        } else {
+          gacaSummary = "No fixed delay amount at the entered duration";
+          reasons.push("The entered arrival delay is below GACA's fixed-delay compensation threshold.");
+        }
+
+        if (delayHrs > 2) {
+          reasons.push("Because the delay exceeds 2 hours, GACA allows the passenger to terminate the contract and request a full ticket refund without deductions.");
+        }
+        if (delayHrs > 5) {
+          reasons.push("Because the delay exceeds 5 hours, the passenger may treat the flight as cancelled and use the cancellation provisions.");
+        }
+      } else if (type === "cancel") {
+        gacaSummary = "Refund plus 50%, 75%, or 150% of the unused value may apply";
+        reasons.push("If you do not accept an alternative flight, GACA provides a full refund, including qualifying seat and baggage fees, plus compensation of 50%, 75%, or 150% of the unused value depending on the exact notice period.");
+        reasons.push("The checker's current notice choices do not distinguish all GACA boundaries, including 24 hours and 60 days, so verify the exact notice period before relying on a particular percentage.");
+        reasons.push("If you accept an alternative flight, cancellation compensation does not apply; the delay rules apply to the time difference instead.");
+      } else if (type === "denied") {
+        gacaSummary = "Refund plus 200% of the unused value may apply";
+        reasons.push("If you reject the denied boarding and terminate the contract, GACA provides a refund plus 200% of the unused value. The airline is exempt from that compensation if it offers an alternative flight within 2 hours.");
+        reasons.push("If you accept an alternative flight, GACA's delay provisions apply to the time difference instead.");
+      }
+
+      reasons.push("Genuine force majeure may exempt compensation, but GACA says an airline cannot claim force majeure for airline-caused technical failures, operational conditions, or scheduling.");
+      reasons.push("GACA requires the airline to complete an applicable refund or compensation process within 15 days of the incident.");
+      return { km, base: null, eligible: false, amount: 0, careOnly: false, regional: true, saudiGaca: true, gacaSummary, authority: "Saudi GACA", reasons, covered: false };
+    }
     if (regionTouch) {
       const authority = depGulf || GULF[arr[0]] || "your local civil aviation authority";
       reasons.push(`However, you are not without rights. For flights touching the Gulf/MENA region, the airline still owes you duty of care (meals after ~2 hours, hotel if stranded overnight), and under the Montreal Convention 1999 you can claim your actual, provable financial losses — hotels, replacement essentials, missed connections — with receipts.`);
@@ -188,7 +227,7 @@ export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
 
   const depInfo = AIRPORTS.find((a) => a[0] === from);
   const arrInfo = AIRPORTS.find((a) => a[0] === to);
-  const needCarrierQ = depInfo && depInfo[4] === "INT";
+  const needCarrierQ = depInfo && !["EU", "UK"].includes(depInfo[4]);
 
   const result = useMemo(() => {
     if (step !== 3) return null;
@@ -301,12 +340,12 @@ export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-5">
             {type === "delay" && (
               <>
-                <Field label={`How late did you arrive? ${delayHrs >= 6 ? "6+ hours" : delayHrs + " hours"}`}>
-                  <input type="range" min="0" max="6" step="1" value={delayHrs}
+                <Field label={`How late did you arrive? ${delayHrs > 6 ? "Over 6 hours" : delayHrs + " hours"}`}>
+                  <input type="range" min="0" max="7" step="1" value={delayHrs}
                     aria-label="Arrival delay in hours"
                     onChange={(e) => setDelayHrs(Number(e.target.value))} className="w-full accent-blue-600" />
                   <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                    <span>0h</span><span>2h</span><span>3h</span><span>5h</span><span>6h+</span>
+                    <span>0h</span><span>2h</span><span>3h</span><span>5h</span><span>6h</span><span>&gt;6h</span>
                   </div>
                 </Field>
                 <Field label="What was the cause (if known)?">
@@ -347,12 +386,18 @@ export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
         {step === 3 && result && (
           <>
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className={`px-5 py-6 text-white ${result.eligible ? "bg-emerald-600" : result.indeterminateCarrier ? "bg-amber-500" : result.careOnly ? "bg-amber-500" : "bg-slate-500"}`}>
+              <div className={`px-5 py-6 text-white ${result.eligible ? "bg-emerald-600" : result.saudiGaca ? "bg-blue-700" : result.indeterminateCarrier ? "bg-amber-500" : result.careOnly ? "bg-amber-500" : "bg-slate-500"}`}>
                 {result.eligible ? (
                   <>
                     <div className="text-[12px] uppercase tracking-widest opacity-80">You may be entitled to claim</div>
                     <div className="font-mono text-5xl font-bold mt-1">{result.currency} {result.amount}</div>
                     <div className="text-[13px] opacity-90 mt-1">per passenger — a family of 4 could claim {result.currency} {result.amount * 4}</div>
+                  </>
+                ) : result.saudiGaca ? (
+                  <>
+                    <Scale className="w-8 h-8" />
+                    <div className="font-bold text-[18px] mt-2">Saudi GACA rights may apply</div>
+                    <div className="text-[13px] opacity-90 mt-1">{result.gacaSummary}</div>
                   </>
                 ) : result.indeterminateCarrier ? (
                   <>
@@ -432,7 +477,7 @@ export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
             {result.regional && (
               <button onClick={onGoToGuide}
                 className="w-full bg-[#0B2545] text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition">
-                <Euro className="w-5 h-5" /> See how to claim your losses
+                <Euro className="w-5 h-5" /> {result.saudiGaca ? "Read the Saudi GACA claim guide" : "See how to claim your losses"}
               </button>
             )}
 
@@ -452,7 +497,7 @@ export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
             <div className="flex items-start gap-2 px-2">
               <ShieldCheck className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
               <p className="text-[11px] text-slate-400 leading-snug">
-                This is an automated estimate based on EU/UK Regulation 261 and related court rulings, not legal advice. Final eligibility depends on the airline's evidence.
+                This is an automated estimate based on EU/UK Regulation 261, Saudi GACA rules where applicable, and related official guidance. It is not legal advice. Final eligibility depends on the full circumstances and the airline's evidence.
               </p>
             </div>
 
