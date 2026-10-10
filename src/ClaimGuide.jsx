@@ -63,6 +63,10 @@ const REGIONS = [
     care: "Care rights (meals, communications, accommodation) apply, similar in spirit to the European model.",
     escalate: "Saudi: complain to the airline, then escalate to GACA if there's no satisfactory reply within the deadline, then court. UAE: escalate to the GCAA.",
     deadline: "Check the specific regulator; act promptly and keep all evidence.",
+    officialSource: {
+      label: "View the current official GACA Passenger Rights Protection Regulations",
+      href: "https://www.gaca.gov.sa/-/media/Files/PDF/LawsAndRegulation/Consumer-Protection/Passenger-Rights-Protection-Regulations-EN.pdf",
+    },
   },
 ];
 
@@ -202,6 +206,17 @@ function Accordion({ region, open, onToggle }) {
           <div className="flex items-center gap-2 text-[12px] text-slate-500 pt-1 border-t border-slate-100">
             <Globe className="w-3.5 h-3.5" /> Deadline to claim: {region.deadline}
           </div>
+          {region.officialSource && (
+            <a
+              href={region.officialSource.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-[12.5px] font-semibold text-blue-600 underline decoration-blue-300 hover:text-blue-700"
+            >
+              <Globe className="w-3.5 h-3.5 shrink-0" />
+              {region.officialSource.label}
+            </a>
+          )}
         </div>
       )}
     </div>
