@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="88" height="56" viewBox="0 0 88 56" role="img" aria-label="ClaimYourTrip placeholder logo">
+  <rect width="88" height="56" rx="10" fill="#0B2545"/>
+  <path d="M15 31.5 29 18l-6.5 13H34L16 43l5-11.5Z" fill="#2DD4BF"/>
+  <text x="42" y="35" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="18" font-weight="700">CYT</text>
+</svg>

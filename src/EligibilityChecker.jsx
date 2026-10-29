@@ -6,29 +6,8 @@ import {
 } from "lucide-react";
 import { useSeo } from "./hooks/useSeo.js";
 import { useSeoSchema } from "./hooks/useSeoSchema.js";
-
-const AIRPORTS = [
-  ["LHR","London Heathrow",51.47,-0.45,"UK"],["LGW","London Gatwick",51.15,-0.18,"UK"],["MAN","Manchester",53.35,-2.27,"UK"],
-  ["CDG","Paris Charles de Gaulle",49.01,2.55,"EU"],["ORY","Paris Orly",48.72,2.38,"EU"],["AMS","Amsterdam",52.31,4.76,"EU"],
-  ["FRA","Frankfurt",50.04,8.56,"EU"],["MUC","Munich",48.35,11.79,"EU"],["BER","Berlin",52.36,13.5,"EU"],
-  ["MAD","Madrid",40.47,-3.56,"EU"],["BCN","Barcelona",41.3,2.08,"EU"],["LIS","Lisbon",38.77,-9.13,"EU"],
-  ["FCO","Rome Fiumicino",41.8,12.25,"EU"],["MXP","Milan Malpensa",45.63,8.72,"EU"],["VIE","Vienna",48.11,16.57,"EU"],
-  ["ZRH","Zurich",47.46,8.55,"EU"],["GVA","Geneva",46.24,6.11,"EU"],["BRU","Brussels",50.9,4.48,"EU"],
-  ["CPH","Copenhagen",55.62,12.65,"EU"],["ARN","Stockholm",59.65,17.92,"EU"],["OSL","Oslo",60.19,11.1,"EU"],
-  ["HEL","Helsinki",60.32,24.96,"EU"],["DUB","Dublin",53.42,-6.27,"EU"],["ATH","Athens",37.94,23.94,"EU"],
-  ["WAW","Warsaw",52.17,20.97,"EU"],["PRG","Prague",50.1,14.26,"EU"],["BUD","Budapest",47.44,19.26,"EU"],
-  ["IST","Istanbul",41.26,28.74,"INT"],["DXB","Dubai",25.25,55.36,"INT"],["DOH","Doha",25.27,51.61,"INT"],
-  ["AUH","Abu Dhabi",24.43,54.65,"INT"],["RUH","Riyadh",24.96,46.7,"SA"],["JED","Jeddah",21.68,39.16,"SA"],
-  ["CAI","Cairo",30.12,31.41,"INT"],["AMM","Amman",31.72,35.99,"INT"],["BEY","Beirut",33.82,35.49,"INT"],
-  ["JFK","New York JFK",40.64,-73.78,"INT"],["EWR","Newark",40.69,-74.17,"INT"],["LAX","Los Angeles",33.94,-118.41,"INT"],
-  ["ORD","Chicago O'Hare",41.97,-87.91,"INT"],["MIA","Miami",25.79,-80.29,"INT"],["YYZ","Toronto",43.68,-79.63,"INT"],
-  ["GRU","Sao Paulo",-23.43,-46.47,"INT"],["EZE","Buenos Aires",-34.82,-58.54,"INT"],
-  ["BOM","Mumbai",19.09,72.87,"INT"],["DEL","Delhi",28.56,77.1,"INT"],["SIN","Singapore",1.36,103.99,"INT"],
-  ["BKK","Bangkok",13.69,100.75,"INT"],["HKG","Hong Kong",22.31,113.91,"INT"],["NRT","Tokyo Narita",35.77,140.39,"INT"],
-  ["ICN","Seoul Incheon",37.46,126.44,"INT"],["PEK","Beijing",40.08,116.58,"INT"],["SYD","Sydney",-33.95,151.18,"INT"],
-  ["JNB","Johannesburg",-26.14,28.25,"INT"],["NBO","Nairobi",-1.32,36.93,"INT"],["LOS","Lagos",6.58,3.32,"INT"],
-  ["ADD","Addis Ababa",8.98,38.8,"INT"],["CMN","Casablanca",33.37,-7.59,"INT"],["TLV","Tel Aviv",32.01,34.89,"INT"],
-];
+import AirportAutocomplete from "./AirportAutocomplete.jsx";
+import { AIRPORTS } from "./airportData.js";
 
 const toRad = (d) => (d * Math.PI) / 180;
 function distanceKm(a, b) {
@@ -193,16 +172,6 @@ const Choice = ({ options, value, onChange }) => (
   </div>
 );
 
-const AirportSelect = ({ id, ariaLabel, value, onChange, exclude }) => (
-  <select id={id} aria-label={ariaLabel} value={value} onChange={(e) => onChange(e.target.value)}
-    className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-3 text-[14px] font-medium text-slate-800">
-    <option value="">Select airport…</option>
-    {AIRPORTS.filter((a) => a[0] !== exclude).map((a) => (
-      <option key={a[0]} value={a[0]}>{a[0]} — {a[1]}</option>
-    ))}
-  </select>
-);
-
 export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
   useSeo(
     "Flight Delay & Cancellation Compensation Checker | ClaimYourTrip",
@@ -299,11 +268,25 @@ export default function EligibilityChecker({ onGoToGuide, onGoToLetter }) {
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
             <div>
               <label htmlFor="from-airport" className="text-[12px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5 block">From</label>
-              <AirportSelect id="from-airport" ariaLabel="From airport" value={from} onChange={setFrom} exclude={to} />
+              <AirportAutocomplete
+                id="from-airport"
+                label="Departure airport"
+                value={from}
+                onChange={setFrom}
+                exclude={to}
+                placeholder="Departure airport"
+              />
             </div>
             <div>
               <label htmlFor="to-airport" className="text-[12px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5 block">To</label>
-              <AirportSelect id="to-airport" ariaLabel="To airport" value={to} onChange={setTo} exclude={from} />
+              <AirportAutocomplete
+                id="to-airport"
+                label="Arrival airport"
+                value={to}
+                onChange={setTo}
+                exclude={from}
+                placeholder="Arrival airport"
+              />
             </div>
             {needCarrierQ && (
               <Field label="Was the airline based in the EU or UK?">
